@@ -1,0 +1,10 @@
+query AllUsers {
+    allUsers {
+        id
+        name
+        links {
+            description
+            createdAt
+        }
+    }
+}

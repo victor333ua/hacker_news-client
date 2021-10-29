@@ -1,0 +1,5 @@
+mutation CreatePost($description: String!, $url: String!) {
+    createPost(description: $description, url: $url) {
+        ...RegularPost
+    }
+}

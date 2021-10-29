@@ -1,0 +1,8 @@
+query AllPosts($feedTake: Int, $feedCursor: String) {
+  feed(take: $feedTake, cursor: $feedCursor) {
+    posts {
+      ...RegularPost
+    }
+    hasMore
+  }
+}

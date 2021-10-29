@@ -1,0 +1,13 @@
+fragment RegularPost on Link {
+    id
+    description
+    createdAt
+    votesUp
+    votesDown
+    voteValue
+    postedBy {
+        id
+        name
+        lastTime
+    }
+}

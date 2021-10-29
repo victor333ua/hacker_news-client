@@ -1,0 +1,6 @@
+subscription  UserIsOnline {
+    userIsOnline {
+        userId
+        lastTime
+    }
+}

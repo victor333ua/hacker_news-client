@@ -1,0 +1,6 @@
+subscription PostVoted {
+    postVoted {
+        postId
+        value
+    }
+}

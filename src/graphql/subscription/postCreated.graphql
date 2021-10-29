@@ -1,0 +1,7 @@
+subscription PostCreated {
+  postCreated {
+    newPost {
+      ...RegularPost
+    }
+  }
+}
