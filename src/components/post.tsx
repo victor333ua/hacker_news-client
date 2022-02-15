@@ -1,6 +1,6 @@
-import { chakra, useColorMode } from '@chakra-ui/system';
+import { useColorMode } from '@chakra-ui/system';
 import React from 'react'
-import { RegularPostFragment, useMeQuery, usePostDeletedSubscription } from '../generated/graphql';
+import { RegularPostFragment, useMeQuery } from '../generated/graphql';
 import { Box, Divider, Flex, Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { MyIconButton } from './MyIconButton';
@@ -18,7 +18,7 @@ interface postProps {
 export const Post: React.FC<postProps> = ({ post }) => {
     const { colorMode } = useColorMode();
 
-    const { data } = useMeQuery({ errorPolicy: 'all' }); 
+    const { data } = useMeQuery({ fetchPolicy: "cache-only" }); 
 
     const [deletePost] = useDeletePostMutation({
          variables: { postId: post.id },
@@ -59,17 +59,17 @@ export const Post: React.FC<postProps> = ({ post }) => {
         })
     };
     
-    const isLogged = data != undefined;
-    const isMyPost = data?.me.id === post.postedBy.id;
+    const isLogged = !!data?.me
+    const isMyPost = data?.me?.id === post.postedBy.id;
 
     let lastTime = post.postedBy.lastTime;
-    const isOnline = !lastTime
+    const isOnline = !lastTime;
     let textIsOnline, colorIsOnline;
     if (isOnline) {
         colorIsOnline = 'green';
         textIsOnline = 'online';
     } else {
-        lastTime = format(new Date(parseInt(lastTime)), 'dd MMM H:mm');
+        lastTime = format(new Date(parseInt(lastTime!)), 'dd MMM H:mm'); 
         colorIsOnline = 'red';
         textIsOnline = 'last time was at ' + lastTime;
     }
@@ -104,30 +104,30 @@ export const Post: React.FC<postProps> = ({ post }) => {
                     size="xs"
                     onClick={()=>{}}
                 />
-                {isLogged && <>
-                    <Flex flexDirection="column" textAlign="center" >             
-                        <MyIconButton
-                            name='down'  
-                            icon={<MdThumbDownOffAlt />}
-                            mr="3"
-                            size="xs"
-                            color={post.voteValue === -1 ? "blue.500" : undefined}
-                            onClick={() => onVote(-1)}
-                        />
-                        <Text fontSize="sm" as="i"  mr={3} >{post.votesDown}</Text> 
-                    </Flex>
-                    <Flex flexDirection="column" textAlign="center" >          
-                        <MyIconButton
-                            name='up'  
-                            icon={<MdThumbUpOffAlt />}
-                            mr="3"
-                            size="xs"
-                            color={post.voteValue === 1 ? "blue.600" : undefined}
-                            onClick={()=> onVote(1)}              
-                        />
-                        <Text fontSize="sm" as="i"  mr={3} >{post.votesUp}</Text> 
-                    </Flex>
-                </>}                           
+                <Flex flexDirection="column" textAlign="center" >             
+                    <MyIconButton
+                        name='down'  
+                        icon={<MdThumbDownOffAlt />}
+                        mr="3"
+                        size="xs"
+                        color={post.voteValue === -1 ? "blue.500" : undefined}
+                        onClick={() => onVote(-1)}
+                        isDisabled={!isLogged}        
+                    />
+                    <Text fontSize="sm" as="i"  mr={3} >{post.votesDown}</Text>         
+                </Flex>
+                <Flex flexDirection="column" textAlign="center" >          
+                    <MyIconButton
+                        name='up'  
+                        icon={<MdThumbUpOffAlt />}
+                        mr="3"
+                        size="xs"
+                        color={post.voteValue === 1 ? "blue.600" : undefined}
+                        onClick={()=> onVote(1)} 
+                        isDisabled={!isLogged}                     
+                    />
+                    <Text fontSize="sm" as="i"  mr={3} >{post.votesUp}</Text> 
+                </Flex>    
                 {isMyPost && <MyIconButton
                     name='delete'
                     icon={<MdDeleteOutline/>}                       

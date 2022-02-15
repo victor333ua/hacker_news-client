@@ -1,36 +1,16 @@
 import { Button, Flex, Stack } from '@chakra-ui/react';
-import React, { useEffect } from 'react';
-import { cache } from '../apolloClient';
-import { Layout } from './Layout';
+import React from 'react';
+import { useAllPostsQuery } from '../generated/graphql';
+import { isServer } from '../utils/isServer';
 import { Post } from './post';
-import { PostCreatedDocument, PostCreatedSubscription, PostCreatedSubscriptionVariables, useAllPostsQuery, UserIsOnlineDocument, UserIsOnlineSubscription } from '../generated/graphql';
 
 const AllPosts = () => {
-    const { loading, error, data, fetchMore, subscribeToMore } = useAllPostsQuery({
+    const { loading, error, data, fetchMore } = useAllPostsQuery({
       variables: { feedCursor: undefined, feedTake: 5 },
       errorPolicy: 'all',
-      // fetchPolicy: "cache-first",
-      // nextFetchPolicy: "cache-only"
+      skip: isServer()
     });
-   
-    useEffect(() => {
-      subscribeToMore<PostCreatedSubscription, PostCreatedSubscriptionVariables>({
-        document: PostCreatedDocument,
-        updateQuery: (prev, { subscriptionData }) => {
-          if (!subscriptionData.data) return prev;
-          if (!prev) prev = { feed: { posts: [], hasMore: false } };
-            const newFeed = {
-            posts: [subscriptionData.data.postCreated.newPost, ...prev.feed.posts],
-            hasMore: prev.feed.hasMore
-          };
-    // merge from cache will add newFeed to the end of list      
-          cache.evict({ fieldName: 'feed' });       
-          return { feed: newFeed };
-        },
-      
-      });
-    }, [subscribeToMore]);
-  
+     
     if (!data) {
       return (
         <>
@@ -41,7 +21,7 @@ const AllPosts = () => {
     };
     
     return (
-       <Layout>
+       <div>
           <Stack spacing={8} >
             {data.feed.posts.map( post => <Post key={post.id} post={post} /> )}
           </Stack>
@@ -62,9 +42,9 @@ const AllPosts = () => {
                   </Button> 
                 </Flex> 
           }      
-        </Layout>
+        </div>
     )
-  }
+}
   
-  export default AllPosts
+export default AllPosts
   

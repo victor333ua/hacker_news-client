@@ -28,7 +28,6 @@ export const cache = new InMemoryCache({
 
 const getAuthorizationStr = () => {
     let token = localStorage.getItem('token');
-    console.log('token= ', token);
     if (token === 'undefined') token = null;
     return   token  ? `Bearer ${token}` : null;
 };
@@ -63,7 +62,7 @@ export const getLink = () => {
         on: {
             connected: () => console.log('graphql-ws connected'),
             error: (err) => console.log(err), 
-            message: (msg) => console.log('msg: ', msg)    
+            // message: (msg) => console.log('msg: ', msg)    
         },
         connectionParams: () => ({ authorization: getAuthorizationStr() })  
     });
@@ -83,7 +82,8 @@ export const getLink = () => {
 
 export const client = new ApolloClient({
     link: getLink(),
-    cache
+    cache,
+    connectToDevTools: true
 });    
 
 // client.onResetStore(async () => {

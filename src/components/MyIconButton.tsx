@@ -7,7 +7,7 @@ type MyIconButtonProps = {
     icon: any;
     ml?: string;
     mr?: string;
-    
+    isDisabled?: boolean;
 } & Partial<IconButtonProps>;
 
 export const MyIconButton: React.FC<MyIconButtonProps> = ({ name, icon, onClick, ...props }) => {

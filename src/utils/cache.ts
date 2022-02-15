@@ -1,7 +1,10 @@
+import { gql } from '@apollo/client';
 import { cache } from '../apolloClient';
-import { Link } from '../generated/graphql';
+import { RegularPostFragment } from '../generated/graphql';
 
-export const modifyCacheDeletePost = (postId: number) => {
+export const modifyCacheDeletePost = (postId: number | undefined) => {
+    if (!postId) return;
+    cache.evict({ id: `Link:${postId}`});
     cache.modify({
         fields: {
             feed(cached, { readField }) {
@@ -33,46 +36,65 @@ export const modifyCacheVotePost = ({ value, postId }: { value: number, postId: 
         }
     });
 
-    cache.modify({
-        fields: {
-            feed(_, { INVALIDATE }) {
-                return INVALIDATE; 
-            }
-        }       
-    });
+    // cache.modify({
+    //     fields: {
+    //         feed(_, { INVALIDATE }) {
+    //             return INVALIDATE; 
+    //         }
+    //     }       
+    // });
 };
 
-export const modifyCacheAddPost = (newPost: Link) => {
+export const modifyCacheAddPost = (newPost: RegularPostFragment | undefined) => {
+    if (!newPost) return;
     cache.modify({
         fields: {
             feed(cached = { posts: [], hasMore: false }) {
-                // merge from fieldPolicy will add newFeed to the end of list, so       
                 const newFeed = {
                     posts: [newPost, ...cached.posts],
                     hasMore: cached.hasMore
                 };           
                 cache.evict({ fieldName: 'feed' });       
-                return { feed: newFeed };
+                return newFeed;
             }
         }
     });
 };
 
 export const  modifyCacheUserIsOnline = 
-    ({ lastTime, userId }: {lastTime: string, userId: number}) => {
-        cache.modify({
+    ({ lastTime, userId }: {lastTime: string | null, userId: number | undefined }) => {
+       if (!userId) return;
+        cache.writeFragment({
             id: `User:${userId}`,
-            fields: {
-                 lastTime() {
-                     return lastTime
-                 }
+            fragment: gql`
+                fragment LastT on User {
+                    lastTime
+                }
+            `,
+            data: {
+                lastTime
             }
         });
-        cache.modify({
-            fields: {
-                feed(_, { INVALIDATE }) {
-                    return INVALIDATE; 
-                }
-            }       
-        });
-    }
+        // cache.modify({
+        //     id: `User:${userId}`,
+        //     fields: {
+        //          lastTime() {
+        //              return lastTime;
+        //          }
+        //     }
+        // });
+    };
+
+export const modifyCacheLogout = () => {
+// to prevent refetching queryMe
+    cache.modify({
+        fields: {
+            me() {
+                return {__ref: null}
+            }
+        }
+    })
+};
+
+
+                    

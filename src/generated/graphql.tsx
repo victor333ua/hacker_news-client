@@ -49,6 +49,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createPost: Link;
   deletePost: Link;
+  logWithValidToken: Scalars['Boolean'];
   login: AuthPayload;
   logout: Scalars['Boolean'];
   signup: AuthPayload;
@@ -137,7 +138,7 @@ export type User = {
   __typename?: 'User';
   email: Scalars['String'];
   id: Scalars['Int'];
-  lastTime: Scalars['String'];
+  lastTime?: Maybe<Scalars['String']>;
   links: Array<Link>;
   name: Scalars['String'];
 };
@@ -149,7 +150,7 @@ export type VotePayload = {
   value: Scalars['Int'];
 };
 
-export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime: string } };
+export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } };
 
 export type CreatePostMutationVariables = Exact<{
   description: Scalars['String'];
@@ -157,7 +158,7 @@ export type CreatePostMutationVariables = Exact<{
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime: string } } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } } };
 
 export type DeletePostMutationVariables = Exact<{
   postId: Scalars['Int'];
@@ -165,6 +166,11 @@ export type DeletePostMutationVariables = Exact<{
 
 
 export type DeletePostMutation = { __typename?: 'Mutation', deletePost: { __typename?: 'Link', id: number } };
+
+export type LogWithValidTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogWithValidTokenMutation = { __typename?: 'Mutation', logWithValidToken: boolean };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String'];
@@ -202,7 +208,7 @@ export type AllPostsQueryVariables = Exact<{
 }>;
 
 
-export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime: string } }> } };
+export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } }> } };
 
 export type AllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -212,12 +218,12 @@ export type AllUsersQuery = { __typename?: 'Query', allUsers: Array<{ __typename
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, name: string } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } };
 
 export type PostCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime: string } } } };
+export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } } } };
 
 export type PostDeletedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -316,6 +322,36 @@ export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
 export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
 export type DeletePostMutationOptions = Apollo.BaseMutationOptions<DeletePostMutation, DeletePostMutationVariables>;
+export const LogWithValidTokenDocument = gql`
+    mutation LogWithValidToken {
+  logWithValidToken
+}
+    `;
+export type LogWithValidTokenMutationFn = Apollo.MutationFunction<LogWithValidTokenMutation, LogWithValidTokenMutationVariables>;
+
+/**
+ * __useLogWithValidTokenMutation__
+ *
+ * To run a mutation, you first call `useLogWithValidTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogWithValidTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logWithValidTokenMutation, { data, loading, error }] = useLogWithValidTokenMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogWithValidTokenMutation(baseOptions?: Apollo.MutationHookOptions<LogWithValidTokenMutation, LogWithValidTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogWithValidTokenMutation, LogWithValidTokenMutationVariables>(LogWithValidTokenDocument, options);
+      }
+export type LogWithValidTokenMutationHookResult = ReturnType<typeof useLogWithValidTokenMutation>;
+export type LogWithValidTokenMutationResult = Apollo.MutationResult<LogWithValidTokenMutation>;
+export type LogWithValidTokenMutationOptions = Apollo.BaseMutationOptions<LogWithValidTokenMutation, LogWithValidTokenMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
@@ -538,6 +574,7 @@ export const MeDocument = gql`
   me {
     id
     name
+    lastTime
   }
 }
     `;

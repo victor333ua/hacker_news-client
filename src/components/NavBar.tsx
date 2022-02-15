@@ -1,80 +1,65 @@
-import { MdLogin, MdLogout, MdEditCalendar, MdHome  } from "react-icons/md";
-import React, { useEffect, useState } from 'react'
-import { Box, Flex, Container, Text } from "@chakra-ui/layout";
-import { useMeQuery, UserIsOnlineSubscription, useUserIsOnlineSubscription } from "../generated/graphql";
-import { MyIconButton } from "./MyIconButton";
+import { Box, Container, Flex, Text } from "@chakra-ui/layout";
+import React, { useEffect } from 'react';
+import { MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
+import { modifyCacheUserIsOnline } from "../utils/cache";
 import { isServer } from "../utils/isServer";
+import { useMySubscriptions } from "../utils/useMySubscriptions";
+import { useLogoutMutation, useLogWithValidTokenMutation, useMeQuery } from './../generated/graphql';
 import { changeWsConnection } from './../utils/changeWsConnection';
-import { OnSubscriptionDataOptions } from '@apollo/client';
-import { cache } from '../apolloClient';
-import { modifyCacheDeletePost, modifyCacheUserIsOnline, modifyCacheVotePost } from '../utils/cache';
-import { PostDeletedSubscription, PostVotedSubscription, usePostDeletedSubscription, usePostVotedSubscription, useLogoutMutation } from './../generated/graphql';
-
-const onPostDeleted = 
-    ({ subscriptionData }: OnSubscriptionDataOptions<PostDeletedSubscription>) => {
-      if (!subscriptionData?.data) return;
-      const { postId } = subscriptionData.data?.postDeleted;
-      cache.evict({ id: `Link:${postId}`});
-      modifyCacheDeletePost(postId);
-    };
-const onPostVoted = 
-    ({ subscriptionData }: OnSubscriptionDataOptions<PostVotedSubscription>) => {
-      if (!subscriptionData?.data) return;
-      const { postId, value } = subscriptionData.data.postVoted;
-      modifyCacheVotePost({ value, postId });
-    };
-const  onUserIsOnline =  
-    ({ subscriptionData }: OnSubscriptionDataOptions<UserIsOnlineSubscription>) => {
-        if (!subscriptionData?.data) return;
-        const { userId, lastTime } = subscriptionData.data.userIsOnline;
-        modifyCacheUserIsOnline({ lastTime, userId });
-    };
+import { isTokenExist } from './../utils/isTokenExist';
+import { MyIconButton } from "./MyIconButton";
 
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
-    const { loading, data } = useMeQuery({ skip: isServer(), errorPolicy: 'all' });
-    const [logout] = useLogoutMutation({ errorPolicy: 'all' });
-
-    const [isLogged, setLogged] = useState(false);
-
-    usePostDeletedSubscription({ 
-        onSubscriptionData: onPostDeleted,
-        // fetchPolicy:"cache-only"
-       });
-    usePostVotedSubscription({
-         onSubscriptionData: onPostVoted,
-      });
-    useUserIsOnlineSubscription({
-        onSubscriptionData: onUserIsOnline
+    const { data, loading } = useMeQuery({ 
+        skip: isServer() || !isTokenExist(), 
+        errorPolicy: 'all' 
     });
 
+    const [logout,  { error: errorLogout }] =
+        useLogoutMutation({ 
+            errorPolicy: 'all',
+            update: (cache, { data }) => {
+                if (!data) return;
+                cache.evict({ fieldName: 'me'});
+                cache.evict({ fieldName: 'feed'});
+                localStorage.removeItem('token');
+                changeWsConnection();// change userId in ws context to null     
+            }
+        });
+
+    const [logWithToken, { error: errorLogWithValidToken }] = 
+        useLogWithValidTokenMutation({
+            update: (_, { data }) => {
+                if (!data) return;
+                modifyCacheUserIsOnline({ lastTime: null, userId });
+            },
+            errorPolicy: 'all'
+        });
+
+    const isLogged = !!data?.me;
+    const userId = data?.me.id;
+    const lastTime = data?.me.lastTime;
+
+// subscribe/unsubscr when user changed (or logout)    
+    useMySubscriptions(userId);
+
     useEffect(() => {
-        // console.log('userId : ', data?.me.id);
-        if (!loading && data?.me) {       
-            cache.evict({ fieldName: 'feed' });
-            setLogged(true);
-            changeWsConnection();               
-        };
-    }, [loading, data])
-
-    if (loading) return <div>...loading</div> ;
-
-    const onLogout = async () => {
-        const { errors } = await logout();
-        if (!errors) {
-            localStorage.removeItem('token');
-            // cache.evict({ fieldName: 'feed' }); it's not necessary here
-            cache.evict({ fieldName: 'me' });
-            // await client.clearStore(); refetch queries with token???
-            // await client.resetStore();
-            changeWsConnection();
-            setLogged(false);
-        } else {
-            console.log(errors);
+        window.onbeforeunload = async () => {
+            if (isLogged) await logout();
         }
-    };
+    }, [isLogged]);
+  
+    useEffect(() => {
+// token was valid & we connect w/o login, update db & publish 
+        if (lastTime && isLogged) logWithToken();
+    }, [lastTime, isLogged]); 
     
+    if (loading) return <div>me fetching ...</div>
+    if (errorLogWithValidToken) return <div>error log with old token</div>
+    if (errorLogout) return <div>error logout</div>
+
     return (
         <Flex zIndex={1} position="sticky" top={0} p={4}>
              <Box
@@ -97,11 +82,19 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                                 name='createPost'  
                                 icon={<MdEditCalendar />}
                             />
-                            <Text  ml="auto" mr={6} fontSize="lg" as="u" fontWeight="medium">{data?.me.name}</Text>
+                           <Text  
+                                ml="auto"
+                                mr={6} 
+                                fontSize="lg" 
+                                as="u" 
+                                fontWeight="medium"
+                            >
+                               {data!.me.name}
+                            </Text> 
                             <MyIconButton
                                 name='logout'
                                 icon={<MdLogout />}                                                              
-                                onClick={() => onLogout()}   
+                                onClick={() => logout()}   
                             /> </>)      
                             :  
                             <MyIconButton
@@ -116,3 +109,4 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         </Flex>
     );   
 }
+

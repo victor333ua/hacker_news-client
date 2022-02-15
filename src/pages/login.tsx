@@ -3,7 +3,8 @@ import { Form, Formik } from 'formik';
 import router from 'next/router';
 import React from 'react'
 import { InputField } from '../components/InputField';
-import { MeQuery, useLoginMutation, MeDocument } from './../generated/graphql';
+import { changeWsConnection } from '../utils/changeWsConnection';
+import { MeDocument, MeQuery, useLoginMutation } from './../generated/graphql';
 
 interface loginProps {}
 
@@ -19,18 +20,26 @@ const login: React.FC<loginProps> = ({}) => {
                     variables: values,
                     update: (cache, { data }) => {
                         if (!data) return;
+                        const me = {...data.login.user, lastTime: null};
                         cache.writeQuery<MeQuery>({
                             query: MeDocument,
                             data: {
                                 __typename: "Query",
-                                me: data.login.user
+                                me
                             }    
-                        })
+                        });
+                        cache.evict({ fieldName: 'feed' });
                     }
                 });
                 
                 if (!errors) {                
-                    localStorage.setItem('token', data?.login.token as string);
+                    localStorage.setItem('token', data?.login.token as string);                
+
+// differ from evict, refetch all quires with all variables - loadMore
+// don't work
+//                  refetch(client);
+
+                    changeWsConnection();
                     if (typeof router.query.next === 'string') {
                         router.push(router.query.next) ;
                     } else {

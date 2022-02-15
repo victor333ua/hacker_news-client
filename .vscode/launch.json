@@ -11,9 +11,9 @@
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}/src",
             "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "webpack://_N_E/*": "${webRoot}/*"
-            }
+            // "sourceMapPathOverrides": {
+            //     "webpack://_N_E/./src": "${webRoot}/*"
+            // }
         }
     ]
 }

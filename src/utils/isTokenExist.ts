@@ -1,0 +1,1 @@
+export const isTokenExist = () => !!localStorage.getItem('token');
