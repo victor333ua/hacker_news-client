@@ -1,14 +1,15 @@
-import { useApolloClient } from "@apollo/client/react/hooks";
+import { ApolloCache, ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { useEffect } from "react";
 import { PostCreatedDocument, PostCreatedSubscription, PostCreatedSubscriptionVariables, PostDeletedDocument, PostDeletedSubscription, PostDeletedSubscriptionVariables, PostVotedDocument, PostVotedSubscription, PostVotedSubscriptionVariables, UserIsOnlineDocument, UserIsOnlineSubscription, UserIsOnlineSubscriptionVariables } from "../generated/graphql";
 import { modifyCacheAddPost, modifyCacheDeletePost, modifyCacheUserIsOnline, modifyCacheVotePost } from './cache';
+import { isServer } from "./isServer";
 
-export const useMySubscriptions = (userId: number | undefined) => {
-    const client = useApolloClient();
-
-    // if (!userId) userId = 0;
-
+export const useMySubscriptions = (userId: number | undefined, client: ApolloClient<object>) => {
+    const cache = client.cache as ApolloCache<NormalizedCacheObject>;
+  
     useEffect(() => {
+        if (isServer()) return;
+        
         const observerPostCreated = 
             client.subscribe<PostCreatedSubscription, PostCreatedSubscriptionVariables>({
                 query: PostCreatedDocument     
@@ -30,23 +31,23 @@ export const useMySubscriptions = (userId: number | undefined) => {
             });
 
         const subscriptionPostCreated = observerPostCreated.subscribe(({ data }) => {
-            modifyCacheAddPost(data?.postCreated.newPost);
+            modifyCacheAddPost(cache, data?.postCreated.newPost);
         }); 
         
         const subscriptionPostDeleted = observerPostDeleted.subscribe(({ data }) => {
-            modifyCacheDeletePost(data?.postDeleted.postId);
+            modifyCacheDeletePost(cache, data?.postDeleted.postId);
         });
 
         const subscriptionPostVoted = observerPostVoted.subscribe(({ data }) => {
             if (!data) return;
             const { value, postId } = data.postVoted;
-            modifyCacheVotePost({ value, postId });
+            modifyCacheVotePost(cache, { value, postId });
         });
 
         const subscriptionUserIsOnline = observerUserIsOnline.subscribe(({ data }) => {
             if (!data) return;
             const { userId, lastTime } = data.userIsOnline;
-            modifyCacheUserIsOnline({ lastTime, userId });
+            modifyCacheUserIsOnline(cache, { lastTime, userId });
         });
 
         return () => {
@@ -55,5 +56,5 @@ export const useMySubscriptions = (userId: number | undefined) => {
             subscriptionPostVoted.unsubscribe();
             subscriptionUserIsOnline.unsubscribe();
         }
-    }, [userId]);
+    }, [userId, client, cache]);
 }

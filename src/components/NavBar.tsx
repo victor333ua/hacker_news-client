@@ -1,39 +1,53 @@
+import { useApolloClient } from "@apollo/client";
 import { Box, Container, Flex, Text } from "@chakra-ui/layout";
-import React, { useEffect } from 'react';
+import { useRouter } from "next/router";
+import React from 'react';
 import { MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
 import { modifyCacheUserIsOnline } from "../utils/cache";
-import { isServer } from "../utils/isServer";
+import { changeAuth } from '../utils/changeAuth';
 import { useMySubscriptions } from "../utils/useMySubscriptions";
 import { useLogoutMutation, useLogWithValidTokenMutation, useMeQuery } from './../generated/graphql';
-import { changeWsConnection } from './../utils/changeWsConnection';
-import { isTokenExist } from './../utils/isTokenExist';
 import { MyIconButton } from "./MyIconButton";
 
-interface NavBarProps {}
 
-export const NavBar: React.FC<NavBarProps> = ({}) => {
+export const NavBar: React.FC = (props: any) => {
+    const client = useApolloClient();
+    const router = useRouter();
+
+    // const [, forceUpdate] = useState(0);
+    // useEffect(() =>  forceUpdate(x => x + 1 ), [props.apolloState]);
+   
     const { data, loading } = useMeQuery({ 
-        skip: isServer() || !isTokenExist(), 
-        errorPolicy: 'all' 
+        errorPolicy: 'all',
     });
 
-    const [logout,  { error: errorLogout }] =
+    const [logout,  { data: logoutData, error: errorLogout, loading: lodingLogout }] =
         useLogoutMutation({ 
             errorPolicy: 'all',
             update: (cache, { data }) => {
-                if (!data) return;
-                cache.evict({ fieldName: 'me'});
-                cache.evict({ fieldName: 'feed'});
+                if (!data) return;                  
                 localStorage.removeItem('token');
-                changeWsConnection();// change userId in ws context to null     
+                document.cookie = "token=; max-age=-1";
+
+                // change auth in request headers, here only for web socket
+                changeAuth(client);
+
+                // client.clearStore()
+                //     .then(() => {
+                //         router.push('/', undefined, { shallow: false });
+                //     }) 
+                // client.resetStore(); 
+                cache.evict({ fieldName: 'me' });
+                cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
+                cache.gc();      
             }
         });
 
     const [logWithToken, { error: errorLogWithValidToken }] = 
         useLogWithValidTokenMutation({
-            update: (_, { data }) => {
+            update: (cache, { data }) => {
                 if (!data) return;
-                modifyCacheUserIsOnline({ lastTime: null, userId });
+                modifyCacheUserIsOnline(cache, { lastTime: null, userId });
             },
             errorPolicy: 'all'
         });
@@ -42,23 +56,23 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     const userId = data?.me.id;
     const lastTime = data?.me.lastTime;
 
-// subscribe/unsubscr when user changed (or logout)    
-    useMySubscriptions(userId);
-
-    useEffect(() => {
-        window.onbeforeunload = async () => {
-            if (isLogged) await logout();
-        }
-    }, [isLogged]);
+    // useEffect(() => {
+    //     window.onbeforeunload = async () => {
+    //         if (isLogged) await logout();
+    //     }
+    // }, [isLogged, logout]);
   
-    useEffect(() => {
-// token was valid & we connect w/o login, update db & publish 
-        if (lastTime && isLogged) logWithToken();
-    }, [lastTime, isLogged]); 
+//     useEffect(() => {
+// // token was valid & we connect w/o login, update db & publish 
+//         if (lastTime && isLogged) logWithToken();
+//     }, [lastTime, isLogged, logWithToken]);
     
-    if (loading) return <div>me fetching ...</div>
-    if (errorLogWithValidToken) return <div>error log with old token</div>
-    if (errorLogout) return <div>error logout</div>
+// subscribe/unsubscr when user changed (or logout)    
+    useMySubscriptions(userId, client);
+    
+    if (loading || lodingLogout) return <div>me fetching ...</div>;
+    if (errorLogWithValidToken) return <div>error log with old token</div>;
+    if (errorLogout) return <div>error logout</div>;
 
     return (
         <Flex zIndex={1} position="sticky" top={0} p={4}>
@@ -94,7 +108,10 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                             <MyIconButton
                                 name='logout'
                                 icon={<MdLogout />}                                                              
-                                onClick={() => logout()}   
+                                onClick={ async (e) => {
+                                    e.preventDefault();
+                                    await logout();
+                                }}
                             /> </>)      
                             :  
                             <MyIconButton

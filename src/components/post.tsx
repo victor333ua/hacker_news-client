@@ -1,6 +1,6 @@
 import { useColorMode } from '@chakra-ui/system';
 import React from 'react'
-import { RegularPostFragment, useMeQuery } from '../generated/graphql';
+import { MeQuery, RegularPostFragment, useMeQuery } from '../generated/graphql';
 import { Box, Divider, Flex, Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { MyIconButton } from './MyIconButton';
@@ -12,21 +12,20 @@ const bgColor = { light: 'gray.50', dark: 'gray.900' }
 const color = { light: 'black', dark: 'white' }
 
 interface postProps {
-    post: RegularPostFragment
+    post: RegularPostFragment,
+    data: MeQuery | undefined
 };
 
-export const Post: React.FC<postProps> = ({ post }) => {
+export const Post: React.FC<postProps> = ({ post, data }) => {
     const { colorMode } = useColorMode();
-
-    const { data } = useMeQuery({ fetchPolicy: "cache-only" }); 
 
     const [deletePost] = useDeletePostMutation({
          variables: { postId: post.id },
          errorPolicy: 'all',
-         update: (_, { data }) => {
+         update: (cache, { data }) => {
              if (!data) return;
              const postId = data.deletePost?.id;
-             modifyCacheDeletePost(postId);
+             modifyCacheDeletePost(cache, postId);
          }
     });
 

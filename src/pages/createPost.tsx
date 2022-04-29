@@ -5,11 +5,12 @@ import React from 'react';
 import { InputField } from '../components/InputField';
 import { Layout } from '../components/Layout';
 import { modifyCacheAddPost } from '../utils/cache';
-import { Link, useCreatePostMutation } from './../generated/graphql';
+import { useCreatePostMutation } from './../generated/graphql';
 import { useIsAuth } from './../utils/useIsAuth';
+import withApollo from '../apolloClient';
+import { NextPage } from 'next';
 
-
-const CreatePost: React.FC<{}> = ({}) => {
+const CreatePost: NextPage = () => {
     const router = useRouter();
     const [createPost] = useCreatePostMutation({ errorPolicy: 'all' });
 
@@ -22,9 +23,9 @@ const CreatePost: React.FC<{}> = ({}) => {
                 onSubmit={async values => {
                     const { errors } = await createPost({
                         variables: values,
-                        update: (_, { data }) => {
+                        update: (cache, { data }) => {
                             if (!data) return;
-                            modifyCacheAddPost(data.createPost)
+                            modifyCacheAddPost(cache, data.createPost)
                         }
                     });
                     if (!errors) {
@@ -59,5 +60,5 @@ const CreatePost: React.FC<{}> = ({}) => {
             </Formik>
         </Layout>
     );     
-}
-export default CreatePost;
+};
+export default withApollo(CreatePost);

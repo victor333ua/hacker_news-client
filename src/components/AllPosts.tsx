@@ -1,15 +1,23 @@
+import { useApolloClient } from '@apollo/client';
 import { Button, Flex, Stack } from '@chakra-ui/react';
 import React from 'react';
-import { useAllPostsQuery } from '../generated/graphql';
+import { useAllPostsQuery, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 import { Post } from './post';
 
-const AllPosts = () => {
+const AllPosts: React.FC = (props: any) => {
+    const client = useApolloClient();
+
     const { loading, error, data, fetchMore } = useAllPostsQuery({
       variables: { feedCursor: undefined, feedTake: 5 },
-      errorPolicy: 'all',
-      skip: isServer()
+      errorPolicy: 'all'
     });
+
+    const { data: dataMe, loading: loadingMe } = useMeQuery({ 
+      errorPolicy: 'all',
+     }); 
+
+    if (loadingMe) return <div>loading Me</div>;
      
     if (!data) {
       return (
@@ -23,7 +31,7 @@ const AllPosts = () => {
     return (
        <div>
           <Stack spacing={8} >
-            {data.feed.posts.map( post => <Post key={post.id} post={post} /> )}
+            {data.feed.posts.map( post => <Post key={post.id} post={post} data={dataMe} /> )}
           </Stack>
           <br/>
           {data.feed.hasMore && 

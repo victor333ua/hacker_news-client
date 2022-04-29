@@ -1,25 +1,28 @@
-import { gql } from '@apollo/client';
-import { cache } from '../apolloClient';
+import { ApolloCache, gql } from '@apollo/client';
 import { RegularPostFragment } from '../generated/graphql';
 
-export const modifyCacheDeletePost = (postId: number | undefined) => {
-    if (!postId) return;
-    cache.evict({ id: `Link:${postId}`});
-    cache.modify({
-        fields: {
-            feed(cached, { readField }) {
-                return ({
-                    posts: cached.posts.filter(
-                        (p: any) => postId !== readField('id', p)
-                    ),
-                    hasMore: cached.hasMore
-                });        
-            }
-        },
-     })         
+export const modifyCacheDeletePost = 
+    (cache: ApolloCache<Object>, postId: number | undefined) => {
+        if (!postId) return;
+        cache.evict({ id: `Link:${postId}`});
+        cache.modify({
+            fields: {
+                feed(cached, { readField }) {
+                    return ({
+                        posts: cached.posts.filter(
+                            (p: any) => postId !== readField('id', p)
+                        ),
+                        hasMore: cached.hasMore
+                    });        
+                }
+            },
+        })         
 };
 
-export const modifyCacheVotePost = ({ value, postId }: { value: number, postId: number}) => {   
+export const modifyCacheVotePost = 
+    (cache: ApolloCache<Object>, 
+    { value, postId }: { value: number, postId: number}) => { 
+
     cache.modify({
         id: `Link:${postId}`,
         fields: {
@@ -45,7 +48,10 @@ export const modifyCacheVotePost = ({ value, postId }: { value: number, postId: 
     // });
 };
 
-export const modifyCacheAddPost = (newPost: RegularPostFragment | undefined) => {
+export const modifyCacheAddPost = 
+    (cache: ApolloCache<Object>,
+     newPost: RegularPostFragment | undefined) => {
+
     if (!newPost) return;
     cache.modify({
         fields: {
@@ -62,8 +68,10 @@ export const modifyCacheAddPost = (newPost: RegularPostFragment | undefined) => 
 };
 
 export const  modifyCacheUserIsOnline = 
-    ({ lastTime, userId }: {lastTime: string | null, userId: number | undefined }) => {
-       if (!userId) return;
+    (cache: ApolloCache<Object>,     
+    { lastTime, userId }: {lastTime: string | null, userId: number | undefined }) => {
+       
+        if (!userId) return;
         cache.writeFragment({
             id: `User:${userId}`,
             fragment: gql`
@@ -85,7 +93,8 @@ export const  modifyCacheUserIsOnline =
         // });
     };
 
-export const modifyCacheLogout = () => {
+export const modifyCacheLogout = 
+(cache: ApolloCache<Object>) => {
 // to prevent refetching queryMe
     cache.modify({
         fields: {
