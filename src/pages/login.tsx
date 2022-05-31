@@ -1,18 +1,27 @@
+import { useApolloClient } from '@apollo/client';
 import { Box, Button, Container, Flex, HStack, Text } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import router from 'next/router';
-import React from 'react'
-import { InputField } from '../components/InputField';
-import { changeAuth } from '../utils/changeAuth';
-import { MeDocument, MeQuery, useLoginMutation } from './../generated/graphql';
-import withApollo from '../apolloClient'
 import { NextPage } from 'next';
-import { useApolloClient } from '@apollo/client';
-import { FaGoogle, FaGithub } from 'react-icons/fa';
+import { useRouter } from 'next/router';
+import React from 'react';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+import withApollo from '../apolloClient';
+import { InputField } from '../components/InputField';
+import { afterLogin } from '../utils/afterLogin';
+import { useLoginMutation } from './../generated/graphql';
+
+const googleLogin = async () => {
+   window.open(`http${process.env.NEXT_PUBLIC_API_URL}oauth2/google/login`, '_self');
+}
+
+const gitHubLogin = () => {
+
+}
 
 const Login: NextPage = () => {
     const client = useApolloClient();
     const [login] = useLoginMutation({ errorPolicy: 'all' });
+    const router = useRouter();
     
     return (
         <Formik
@@ -21,37 +30,26 @@ const Login: NextPage = () => {
                
                 const { data, errors } = await login({
                     variables: values,
-                    update: (cache, { data }) => {
-                        if (!data) return;
-                        const me = {...data.login.user};
-                        cache.writeQuery<MeQuery>({
-                            query: MeDocument,
-                            data: {
-                                __typename: "Query",
-                                me
-                            }    
-                        });
-                        cache.evict({ fieldName: 'feed' });
-                    }
+                    // update: (cache, { data }) => {
+                    //     if (!data) return;
+                    //     const me = {...data.login.user};
+                    //     cache.writeQuery<MeQuery>({
+                    //         query: MeDocument,
+                    //         data: {
+                    //             __typename: "Query",
+                    //             me
+                    //         }    
+                    //     });
+                    // }
                 });
                 
-                if (!errors) { 
+                if (data) { 
                     const strToken = data?.login.token as string;              
-                    localStorage.setItem('token', strToken);
-                    // for ssr
-                    document.cookie = "token=" + encodeURIComponent(strToken);                
-
-                    changeAuth(client);
-                    if (typeof router.query.next === 'string') {
-                        router.push(router.query.next) ;
-                    } else {
-                        router.push('/');
-                    }                                      
+                    afterLogin(client, strToken, router);
                 } else {
                     const objError = JSON.parse(errors[0].message);
                     setErrors(objError);
-                }    
-                
+                }                    
             }}
         >
             {({ isSubmitting }) => (
@@ -113,10 +111,14 @@ const Login: NextPage = () => {
                         </Container> 
 
                         <HStack>
-                            <Button bg='black' color='white' leftIcon={<FaGithub />}>
+                            <Button bg='black' color='white' leftIcon={<FaGithub />} 
+                                onClick={ e => { e.preventDefault(); gitHubLogin() }}
+                            >
                                 Github
                             </Button>
-                            <Button bg='#df4930' color='white' leftIcon={<FaGoogle />}>
+                            <Button bg='#df4930' color='white' leftIcon={<FaGoogle />} 
+                                onClick={ e => { e.preventDefault(); googleLogin() }}
+                            >
                                 Google
                             </Button>
                         </HStack>

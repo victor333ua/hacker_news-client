@@ -1,7 +1,7 @@
 import { useApolloClient } from "@apollo/client";
 import { Box, Container, Flex, Text } from "@chakra-ui/layout";
 import { useRouter } from "next/router";
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
 import { modifyCacheUserIsOnline } from "../utils/cache";
 import { changeAuth } from '../utils/changeAuth';
@@ -10,16 +10,11 @@ import { useLogoutMutation, useLogWithValidTokenMutation, useMeQuery } from './.
 import { MyIconButton } from "./MyIconButton";
 
 
-export const NavBar: React.FC = (props: any) => {
+export const NavBar: React.FC = () => {
     const client = useApolloClient();
     const router = useRouter();
 
-    // const [, forceUpdate] = useState(0);
-    // useEffect(() =>  forceUpdate(x => x + 1 ), [props.apolloState]);
-   
-    const { data, loading } = useMeQuery({ 
-        errorPolicy: 'all',
-    });
+    const { data, loading } = useMeQuery();
 
     const [logout,  { data: logoutData, error: errorLogout, loading: lodingLogout }] =
         useLogoutMutation({ 
@@ -27,28 +22,33 @@ export const NavBar: React.FC = (props: any) => {
             update: (cache, { data }) => {
                 if (!data) return;                  
                 localStorage.removeItem('token');
-                document.cookie = "token=; max-age=-1";
+                document.cookie = "token=; expires = Thu, 01 Jan 1970 00:00:00 GMT; path=/;";
 
-                // change auth in request headers, here only for web socket
+                // change auth in request headers
                 changeAuth(client);
 
-                // client.clearStore()
-                //     .then(() => {
-                //         router.push('/', undefined, { shallow: false });
-                //     }) 
-                // client.resetStore(); 
                 cache.evict({ fieldName: 'me' });
                 cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
-                cache.gc();      
+                cache.gc(); 
+
+                // router.reload(); // ssr
+                router.replace('/');// re-mount component in withApollo
+                 
+                // client.clearStore() // don't work
+                //     .then(() => {
+                //         // router.push('/', undefined, { shallow: false });
+                //     }) 
+                // client.resetStore(); // refetch all queries  
             }
         });
-
+ 
     const [logWithToken, { error: errorLogWithValidToken }] = 
         useLogWithValidTokenMutation({
-            update: (cache, { data }) => {
-                if (!data) return;
-                modifyCacheUserIsOnline(cache, { lastTime: null, userId });
-            },
+            // in this case rerender will happen only after reply from the backend
+            // update: (cache, { data }) => {
+            //     if (!data) return;
+            //     modifyCacheUserIsOnline(cache, { lastTime: null, userId });
+            // },
             errorPolicy: 'all'
         });
 
@@ -56,18 +56,24 @@ export const NavBar: React.FC = (props: any) => {
     const userId = data?.me.id;
     const lastTime = data?.me.lastTime;
 
-    // useEffect(() => {
-    //     window.onbeforeunload = async () => {
-    //         if (isLogged) await logout();
-    //     }
-    // }, [isLogged, logout]);
-  
-//     useEffect(() => {
-// // token was valid & we connect w/o login, update db & publish 
-//         if (lastTime && isLogged) logWithToken();
-//     }, [lastTime, isLogged, logWithToken]);
+    useEffect(() => {
+        window.onbeforeunload = () => {
+            if (isLogged) logout();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[isLogged]);
     
-// subscribe/unsubscr when user changed (or logout)    
+    useEffect(() => {
+// token was valid & we connected w/o login => 
+// update db & publish 'user is online' 
+        if (lastTime && isLogged) {
+            logWithToken();
+            modifyCacheUserIsOnline(client.cache, { lastTime: null, userId });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lastTime, isLogged]);
+    
+// subscribe/unsubscr when auth has changed     
     useMySubscriptions(userId, client);
     
     if (loading || lodingLogout) return <div>me fetching ...</div>;
@@ -89,12 +95,14 @@ export const NavBar: React.FC = (props: any) => {
                         <MyIconButton
                             name='all posts'  
                             icon={<MdHome />}
+                            onClick={() => router.push('/', undefined, {shallow: true})}
                         />                                 
                         {isLogged  
                             ? (<>                          
                             <MyIconButton
                                 name='createPost'  
                                 icon={<MdEditCalendar />}
+                                onClick={() => router.push('/createPost')}
                             />
                            <Text  
                                 ml="auto"
@@ -108,16 +116,14 @@ export const NavBar: React.FC = (props: any) => {
                             <MyIconButton
                                 name='logout'
                                 icon={<MdLogout />}                                                              
-                                onClick={ async (e) => {
-                                    e.preventDefault();
-                                    await logout();
-                                }}
+                                onClick={() => logout()}
                             /> </>)      
                             :  
                             <MyIconButton
                                 name='login'  
                                 icon={<MdLogin />}
-                                ml="auto" 
+                                ml="auto"
+                                onClick={() => router.push('/login')} 
                             />
                         }    
                     </Flex>

@@ -11,11 +11,11 @@ type MyIconButtonProps = {
 } & Partial<IconButtonProps>;
 
 export const MyIconButton: React.FC<MyIconButtonProps> = ({ name, icon, onClick, ...props }) => {
-    let href = '/';
-    if (name !== 'all posts') href = href.concat(name);
-    if (onClick) href = '';
+    // let href = '/';
+    // if (name !== 'all posts') href = href.concat(name);
+    // if (onClick) href = '';
     return (
-        <NextLink href={href}>         
+        // <NextLink href={href} passHref>         
             <IconButton
                     mr={10}
                     bg="gray.300"
@@ -27,6 +27,6 @@ export const MyIconButton: React.FC<MyIconButtonProps> = ({ name, icon, onClick,
                     border="2px" 
                     onClick={onClick}                  
             />                                     
-        </NextLink>
+        // </NextLink>
     );
 }

@@ -2,10 +2,11 @@ import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { LinksPayload } from "./generated/graphql";
 import { getLink } from "./utils/getLink";
 import { isServer } from "./utils/isServer";
-import { NextPageContext } from "next";
-import { withApollo } from "./utils/withApollo";
+import { ApolloClientParam } from './types';
+import { getWithApollo } from './utils/withApollo'
 
-export const createApolloClient = (ctx?: NextPageContext) => {
+export const createApolloClient: ApolloClientParam =  ctx => {
+        
     const cache = new InMemoryCache({
         typePolicies: {
             Query: {
@@ -33,5 +34,4 @@ export const createApolloClient = (ctx?: NextPageContext) => {
         connectToDevTools: true
     });     
 };
-
-export default withApollo(createApolloClient);
+export default getWithApollo(createApolloClient);

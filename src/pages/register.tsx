@@ -1,5 +1,5 @@
 import { Container, Flex } from '@chakra-ui/layout';
-import { Box, Button, HStack } from '@chakra-ui/react';
+import { Box, Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { NextPage } from 'next';
 import router from 'next/router';
@@ -7,7 +7,6 @@ import React from 'react'
 import { InputField } from '../components/InputField';
 import { MeDocument, MeQuery, useSignupMutation } from './../generated/graphql';
 import withApollo from '../apolloClient';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
 
 export const Register: NextPage = ({}) => {
     const [signup] = useSignupMutation({ errorPolicy: 'all'});
@@ -92,16 +91,7 @@ export const Register: NextPage = ({}) => {
                             OR
                         </Box>
                         <Box h='0.5px' bg=' lightgray' pos='absolute' top='50%' left='0' bottom='0' right='0' zIndex={-1}/>        
-                    </Container> 
-
-                    <HStack>
-                        <Button bg='black' color='white' leftIcon={<FaGithub />}>
-                            Github
-                        </Button>
-                        <Button bg='#df4930' color='white' leftIcon={<FaGoogle />}>
-                            Google
-                        </Button>
-                    </HStack>
+                    </Container>                    
                 </Box>
             </Container> 
             )}

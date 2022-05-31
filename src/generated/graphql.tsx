@@ -22,7 +22,7 @@ export type AuthPayload = {
 
 export type IsOnlinePayload = {
   __typename?: 'IsOnlinePayload';
-  lastTime: Scalars['String'];
+  lastTime?: Maybe<Scalars['String']>;
   userId: Scalars['Int'];
 };
 
@@ -150,7 +150,7 @@ export type VotePayload = {
   value: Scalars['Int'];
 };
 
-export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } };
+export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } };
 
 export type CreatePostMutationVariables = Exact<{
   description: Scalars['String'];
@@ -158,7 +158,7 @@ export type CreatePostMutationVariables = Exact<{
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } } };
 
 export type DeletePostMutationVariables = Exact<{
   postId: Scalars['Int'];
@@ -208,7 +208,7 @@ export type AllPostsQueryVariables = Exact<{
 }>;
 
 
-export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } }> } };
+export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } }> } };
 
 export type AllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -223,7 +223,7 @@ export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: num
 export type PostCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } } } };
+export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } } } };
 
 export type PostDeletedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -238,7 +238,7 @@ export type PostVotedSubscription = { __typename?: 'Subscription', postVoted: { 
 export type UserIsOnlineSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIsOnlineSubscription = { __typename?: 'Subscription', userIsOnline: { __typename?: 'IsOnlinePayload', userId: number, lastTime: string } };
+export type UserIsOnlineSubscription = { __typename?: 'Subscription', userIsOnline: { __typename?: 'IsOnlinePayload', userId: number, lastTime?: string | null | undefined } };
 
 export const RegularPostFragmentDoc = gql`
     fragment RegularPost on Link {
@@ -252,6 +252,7 @@ export const RegularPostFragmentDoc = gql`
     id
     name
     lastTime
+    email
   }
 }
     `;

@@ -2,30 +2,31 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import merge from 'deepmerge'
 import isEqual from 'lodash/isEqual'
 import { NextPageContext } from 'next';
+import { ApolloClientParam } from '../types'
+import { isServer } from './isServer';
 
-let client: ApolloClient<NormalizedCacheObject> | null;
-
-type ApolloClientParam = ApolloClient<NormalizedCacheObject>
-  | ((ctx?: NextPageContext) => ApolloClient<NormalizedCacheObject>);
+let globalClient: ApolloClient<NormalizedCacheObject> | null;
 
 type initializeApolloParam = {
-    acp: ApolloClientParam,
-    state: NormalizedCacheObject | undefined,
-    ctx: NextPageContext | undefined,
+    acp: ApolloClientParam;
+    ctx: NextPageContext | undefined;
+    state: NormalizedCacheObject | undefined;
     isNew: boolean
 };
 
-const initializeApollo = ({ acp, state, ctx, isNew }: initializeApolloParam ) => {
+const initializeApollo = ({ acp, ctx, state, isNew }: initializeApolloParam ) => {
     
-    if (isNew) client = null; 
-    const _apolloClient = client ?? (typeof acp === 'function' ? acp(ctx) : acp);
+    if (isNew) globalClient = null; 
+    globalClient = globalClient ?? acp(ctx);
 
 // If cache already has data from previous pages or
 // loaded during client side data fetching, the initial state,
 // received from server for current page, is being added to existing cache
-    if (state) {
+// on server side during rendering page we already have client with state
+// after perfoming getDataFromTree
+    if (state && !isServer()) {
         // Get existing cache, 
-        const existingCache = _apolloClient.extract();
+        const existingCache = globalClient.extract();
 
         // Merge the initialState from getStaticProps/getServerSideProps in the existing cache
         const data: NormalizedCacheObject = merge(existingCache, state, {
@@ -39,11 +40,9 @@ const initializeApollo = ({ acp, state, ctx, isNew }: initializeApolloParam ) =>
         });
 
         // Restore the cache with the merged data
-        _apolloClient.cache.restore(data);
+        globalClient.restore(data);
     }
-
-    client = _apolloClient;
-    return _apolloClient;
+    return globalClient;
 };
 
 export default initializeApollo;

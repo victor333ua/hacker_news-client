@@ -1,6 +1,6 @@
 import { useColorMode } from '@chakra-ui/system';
 import React from 'react'
-import { MeQuery, RegularPostFragment, useMeQuery } from '../generated/graphql';
+import { MeQuery, RegularPostFragment } from '../generated/graphql';
 import { Box, Divider, Flex, Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { MyIconButton } from './MyIconButton';
@@ -63,7 +63,7 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
 
     let lastTime = post.postedBy.lastTime;
     const isOnline = !lastTime;
-    let textIsOnline, colorIsOnline;
+    let textIsOnline: string, colorIsOnline: string;
     if (isOnline) {
         colorIsOnline = 'green';
         textIsOnline = 'online';
@@ -74,6 +74,7 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
     }
    
     const date = format(new Date(parseInt(post.createdAt)), 'dd MMM yyyy H:mm');
+    const name = post.postedBy.email.split('@')[0];
     return (
         <Box 
           p={5}
@@ -85,7 +86,7 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
           color={color[colorMode]}
         >
             <Text fontSize="sm" as="i">
-                postedBy <b>{post.postedBy.name}</b>  &nbsp; &nbsp;{date}
+                postedBy <b>{name}</b>  &nbsp; &nbsp;{date}
             </Text>
             <Flex alignItems="center" >
                 <Text fontStyle="italic" fontSize="sm">

@@ -1,29 +1,22 @@
-import { useApolloClient } from '@apollo/client';
 import { Button, Flex, Stack } from '@chakra-ui/react';
 import React from 'react';
 import { useAllPostsQuery, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 import { Post } from './post';
 
-const AllPosts: React.FC = (props: any) => {
-    const client = useApolloClient();
-
+const AllPosts: React.FC = () => {
+   
     const { loading, error, data, fetchMore } = useAllPostsQuery({
       variables: { feedCursor: undefined, feedTake: 5 },
-      errorPolicy: 'all'
+      fetchPolicy: isServer() ? 'cache-first' : 'cache-only'
     });
+    const { data: dataMe } = useMeQuery();
 
-    const { data: dataMe, loading: loadingMe } = useMeQuery({ 
-      errorPolicy: 'all',
-     }); 
-
-    if (loadingMe) return <div>loading Me</div>;
-     
     if (!data) {
       return (
         <>
           {loading && <div>loading...</div>}
-          {!loading && error && <div>{`server error: ${error.name}`}</div>}
+          {error && <div>{`server error: ${error.name}`}</div>}
         </>
       );
     };

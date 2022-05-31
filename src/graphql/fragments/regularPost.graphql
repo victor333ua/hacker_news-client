@@ -9,5 +9,6 @@ fragment RegularPost on Link {
         id
         name
         lastTime
+        email
     }
 }

@@ -2,24 +2,17 @@ import AllPosts from '../components/AllPosts';
 import { Layout } from '../components/Layout';
 import { NavBar } from '../components/NavBar';
 import { NextPage, NextPageContext } from 'next';
-import withApollo from '../apolloClient';
-import { getServerSidePropsWithApollo } from '../utils/getServerSidePropsWithApollo';
+import { getServerSideApolloState } from '../utils/getServerSideApolloState'
+import withApollo from '../apolloClient'
 
 export async function getServerSideProps(ctx: NextPageContext) {
-// work only with deploying in Vercel in production
-    // if (ctx.res) {
-    //     ctx.res.setHeader(
-    //     'Cache-Control',
-    //     'public, max-age=60'
-    //   )
-    // }
 
-  const indexProps = {};  
+  const indexProps = {}; // you could add some data here  
 
-  const { apolloState } = await getServerSidePropsWithApollo(ctx, Index); 
+  const { apolloState } = await getServerSideApolloState(ctx, Index); 
   
   return {
-      props: { ...indexProps, apolloState }
+      props: { ...indexProps, apolloState, ssr: true }
   }
 };
 
@@ -33,4 +26,7 @@ const Index: NextPage = (props: any) => {
         </div>            
     )
 }
+
 export default withApollo(Index);
+
+

@@ -19,18 +19,8 @@ const getAuthorizationStr = (ctx?: NextPageContext) => {
     else {
         token = localStorage.getItem('token')
     }
-    return  token  ? `Bearer ${token}` : null;
+    return (token && token!=='undefined')  ? `Bearer ${token}` : null;
 };
-
-const link = createHttpLink({
-    uri: `http${process.env.NEXT_PUBLIC_API_URL}`,
-    // headers: {
-    //     authorization: auth  
-    // },
-    fetchOptions: {
-        credentials: "include" as const,
-    }
-});
 
 export const getLink = (ctx?: NextPageContext) => {
 
@@ -42,16 +32,25 @@ export const getLink = (ctx?: NextPageContext) => {
         }
     });
 
+    const link = createHttpLink({
+        uri: `http${process.env.NEXT_PUBLIC_API_URL}graphql`,
+        // headers: {
+        //     authorization: auth  
+        // },
+        fetchOptions: {
+            credentials: "include" as const,
+        }
+    });
+
     const httpLink = authLink.concat(link);
 
-       
     if (isServer()) return httpLink;
-    
+
     const wsLink = new WebSocketLink({
-        url: `ws${process.env.NEXT_PUBLIC_API_URL}`,
+        url: `ws${process.env.NEXT_PUBLIC_API_URL}graphql`,
         // lazyCloseTimeout: 50000,
         // retryAttempts: Infinity,
-        lazy: false, // make the client connect immediately
+        lazy: true, // make the client does not connect immediately
         on: {
             // connected: () => console.log('graphql-ws connected'),
             error: (err) => console.log(err), 
@@ -59,6 +58,8 @@ export const getLink = (ctx?: NextPageContext) => {
         },
         connectionParams: () => ({ authorization: auth })  
     });
+
+    // wsLink.concat(authLink);
 
     return split(
         ({ query }) => {
