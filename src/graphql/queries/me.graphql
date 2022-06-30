@@ -3,5 +3,7 @@ query Me {
     id
     name
     lastTime
+    imageLink
+    deletehash
   }
 }

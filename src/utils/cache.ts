@@ -69,7 +69,7 @@ export const modifyCacheAddPost =
 
 export const  modifyCacheUserIsOnline = 
     (cache: ApolloCache<Object>,     
-    { lastTime, userId }: {lastTime: string | null, userId: number | undefined }) => {
+    { lastTime, userId }: {lastTime: string | null | undefined, userId: number | undefined }) => {
        
         if (!userId) return;
         cache.writeFragment({
@@ -83,26 +83,37 @@ export const  modifyCacheUserIsOnline =
                 lastTime
             }
         });
-        // cache.modify({
-        //     id: `User:${userId}`,
-        //     fields: {
-        //          lastTime() {
-        //              return lastTime;
-        //          }
-        //     }
-        // });
     };
 
-export const modifyCacheLogout = 
-(cache: ApolloCache<Object>) => {
-// to prevent refetching queryMe
-    cache.modify({
+export const modifyCacheChangeAvatar = 
+({ cache, userId, link, deletehash }:
+     { cache: ApolloCache<Object>, userId: number, link: string, deletehash: string
+}) => {
+    return cache.modify({
+        id: `User:${userId}`,
         fields: {
-            me() {
-                return {__ref: null}
-            }
-        }
-    })
+            imageLink() {
+                return link;
+            },
+            deletehash() {
+                return deletehash;
+            }                    
+        },
+        // broadcast: false 
+    });
+    // if (!userId) return;
+    // cache.writeFragment({
+    //     id: `User:${userId}`,
+    //     fragment: gql`
+    //         fragment Image on User {
+    //             imageLink, deletehash
+    //         }
+    //     `,
+    //     data: {
+    //         imageLink: link,
+    //         deletehash
+    //     }
+    // });
 };
 
 

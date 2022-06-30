@@ -1,0 +1,7 @@
+query Imgur {
+    imgur {
+        isAuthed
+        clientId
+        accessToken
+    }
+}

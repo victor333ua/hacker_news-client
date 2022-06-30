@@ -8,7 +8,7 @@ import { isServer } from './isServer';
 export const getWithApollo = (acp: ApolloClientParam) => {
     return (PageComponent: NextPage) => {
 
-        const WithApollo: NextPage<any> = ({apolloState, ssr, ...rest}) => {
+        const WithApollo: NextPage<any> = ({apolloState, ssr=false, ...rest}) => {
         // apolloState from getServerSideProps, if exist
 
         // when apolloState changed force react to remount PageComponent

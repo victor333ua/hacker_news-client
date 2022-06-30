@@ -56,5 +56,6 @@ export const useMySubscriptions = (userId: number | undefined, client: ApolloCli
             subscriptionPostVoted.unsubscribe();
             subscriptionUserIsOnline.unsubscribe();
         }
-    }, [userId, client, cache]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userId]);
 }

@@ -1,6 +1,7 @@
 fragment RegularPost on Link {
     id
     description
+    imageLink
     createdAt
     votesUp
     votesDown
@@ -10,5 +11,6 @@ fragment RegularPost on Link {
         name
         lastTime
         email
+        imageLink
     }
 }

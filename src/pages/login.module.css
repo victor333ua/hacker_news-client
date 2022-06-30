@@ -1,0 +1,27 @@
+.underline {
+    border-bottom: 2px solid; position: absolute;
+    height: inherit; width: inherit;
+    z-index: 10;
+}
+.animLeft {
+    animation: moveLeft 1s;
+}
+.animRight {
+    animation: moveRight 1s; 
+}
+@keyframes moveLeft {
+    from {left: 100%;}
+    to {left: 0px};
+}
+@keyframes moveRight {
+    from {left: -100%;}
+    to {left: 0px; }
+}
+.bg {
+    animation: stretch 1s ease-out 0s alternate
+}
+@keyframes stretch {
+    from { transform: scale(.6); }
+    to { transorm: scale(1); }
+}
+

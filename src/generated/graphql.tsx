@@ -20,6 +20,13 @@ export type AuthPayload = {
   user: User;
 };
 
+export type ImgurPayload = {
+  __typename?: 'ImgurPayload';
+  accessToken: Scalars['String'];
+  clientId: Scalars['String'];
+  isAuthed: Scalars['Boolean'];
+};
+
 export type IsOnlinePayload = {
   __typename?: 'IsOnlinePayload';
   lastTime?: Maybe<Scalars['String']>;
@@ -31,6 +38,7 @@ export type Link = {
   createdAt: Scalars['String'];
   description: Scalars['String'];
   id: Scalars['Int'];
+  imageLink?: Maybe<Scalars['String']>;
   postedBy: User;
   postedById: Scalars['Int'];
   url: Scalars['String'];
@@ -47,6 +55,7 @@ export type LinksPayload = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  changeAvatar: Scalars['Boolean'];
   createPost: Link;
   deletePost: Link;
   logWithValidToken: Scalars['Boolean'];
@@ -54,6 +63,12 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   signup: AuthPayload;
   vote: Scalars['Boolean'];
+};
+
+
+export type MutationChangeAvatarArgs = {
+  deletehash: Scalars['String'];
+  imageLink: Scalars['String'];
 };
 
 
@@ -76,7 +91,6 @@ export type MutationLoginArgs = {
 
 export type MutationSignupArgs = {
   email: Scalars['String'];
-  name: Scalars['String'];
   password: Scalars['String'];
 };
 
@@ -102,6 +116,7 @@ export type Query = {
   __typename?: 'Query';
   allUsers: Array<User>;
   feed: LinksPayload;
+  imgur: ImgurPayload;
   me: User;
   user: User;
 };
@@ -136,8 +151,10 @@ export type Updoot = {
 
 export type User = {
   __typename?: 'User';
+  deletehash?: Maybe<Scalars['String']>;
   email: Scalars['String'];
   id: Scalars['Int'];
+  imageLink?: Maybe<Scalars['String']>;
   lastTime?: Maybe<Scalars['String']>;
   links: Array<Link>;
   name: Scalars['String'];
@@ -150,7 +167,15 @@ export type VotePayload = {
   value: Scalars['Int'];
 };
 
-export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } };
+export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } };
+
+export type ChangeAvatarMutationVariables = Exact<{
+  imageLink: Scalars['String'];
+  deletehash: Scalars['String'];
+}>;
+
+
+export type ChangeAvatarMutation = { __typename?: 'Mutation', changeAvatar: boolean };
 
 export type CreatePostMutationVariables = Exact<{
   description: Scalars['String'];
@@ -158,7 +183,7 @@ export type CreatePostMutationVariables = Exact<{
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } } };
 
 export type DeletePostMutationVariables = Exact<{
   postId: Scalars['Int'];
@@ -188,7 +213,6 @@ export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
 export type SignupMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
-  name: Scalars['String'];
 }>;
 
 
@@ -208,22 +232,27 @@ export type AllPostsQueryVariables = Exact<{
 }>;
 
 
-export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } }> } };
+export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } }> } };
 
 export type AllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllUsersQuery = { __typename?: 'Query', allUsers: Array<{ __typename?: 'User', id: number, name: string, links: Array<{ __typename?: 'Link', description: string, createdAt: string }> }> };
 
+export type ImgurQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ImgurQuery = { __typename?: 'Query', imgur: { __typename?: 'ImgurPayload', isAuthed: boolean, clientId: string, accessToken: string } };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined } };
 
 export type PostCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string } } } };
+export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } } } };
 
 export type PostDeletedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -244,6 +273,7 @@ export const RegularPostFragmentDoc = gql`
     fragment RegularPost on Link {
   id
   description
+  imageLink
   createdAt
   votesUp
   votesDown
@@ -253,9 +283,42 @@ export const RegularPostFragmentDoc = gql`
     name
     lastTime
     email
+    imageLink
   }
 }
     `;
+export const ChangeAvatarDocument = gql`
+    mutation ChangeAvatar($imageLink: String!, $deletehash: String!) {
+  changeAvatar(imageLink: $imageLink, deletehash: $deletehash)
+}
+    `;
+export type ChangeAvatarMutationFn = Apollo.MutationFunction<ChangeAvatarMutation, ChangeAvatarMutationVariables>;
+
+/**
+ * __useChangeAvatarMutation__
+ *
+ * To run a mutation, you first call `useChangeAvatarMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangeAvatarMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changeAvatarMutation, { data, loading, error }] = useChangeAvatarMutation({
+ *   variables: {
+ *      imageLink: // value for 'imageLink'
+ *      deletehash: // value for 'deletehash'
+ *   },
+ * });
+ */
+export function useChangeAvatarMutation(baseOptions?: Apollo.MutationHookOptions<ChangeAvatarMutation, ChangeAvatarMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangeAvatarMutation, ChangeAvatarMutationVariables>(ChangeAvatarDocument, options);
+      }
+export type ChangeAvatarMutationHookResult = ReturnType<typeof useChangeAvatarMutation>;
+export type ChangeAvatarMutationResult = Apollo.MutationResult<ChangeAvatarMutation>;
+export type ChangeAvatarMutationOptions = Apollo.BaseMutationOptions<ChangeAvatarMutation, ChangeAvatarMutationVariables>;
 export const CreatePostDocument = gql`
     mutation CreatePost($description: String!, $url: String!) {
   createPost(description: $description, url: $url) {
@@ -422,8 +485,8 @@ export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
 export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const SignupDocument = gql`
-    mutation Signup($email: String!, $password: String!, $name: String!) {
-  signup(email: $email, password: $password, name: $name) {
+    mutation Signup($email: String!, $password: String!) {
+  signup(email: $email, password: $password) {
     user {
       id
       name
@@ -449,7 +512,6 @@ export type SignupMutationFn = Apollo.MutationFunction<SignupMutation, SignupMut
  *   variables: {
  *      email: // value for 'email'
  *      password: // value for 'password'
- *      name: // value for 'name'
  *   },
  * });
  */
@@ -570,12 +632,50 @@ export function useAllUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<A
 export type AllUsersQueryHookResult = ReturnType<typeof useAllUsersQuery>;
 export type AllUsersLazyQueryHookResult = ReturnType<typeof useAllUsersLazyQuery>;
 export type AllUsersQueryResult = Apollo.QueryResult<AllUsersQuery, AllUsersQueryVariables>;
+export const ImgurDocument = gql`
+    query Imgur {
+  imgur {
+    isAuthed
+    clientId
+    accessToken
+  }
+}
+    `;
+
+/**
+ * __useImgurQuery__
+ *
+ * To run a query within a React component, call `useImgurQuery` and pass it any options that fit your needs.
+ * When your component renders, `useImgurQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useImgurQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useImgurQuery(baseOptions?: Apollo.QueryHookOptions<ImgurQuery, ImgurQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ImgurQuery, ImgurQueryVariables>(ImgurDocument, options);
+      }
+export function useImgurLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ImgurQuery, ImgurQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ImgurQuery, ImgurQueryVariables>(ImgurDocument, options);
+        }
+export type ImgurQueryHookResult = ReturnType<typeof useImgurQuery>;
+export type ImgurLazyQueryHookResult = ReturnType<typeof useImgurLazyQuery>;
+export type ImgurQueryResult = Apollo.QueryResult<ImgurQuery, ImgurQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {
     id
     name
     lastTime
+    imageLink
+    deletehash
   }
 }
     `;

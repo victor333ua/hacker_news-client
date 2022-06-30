@@ -3,7 +3,7 @@ import { Layout } from '../components/Layout';
 import { NavBar } from '../components/NavBar';
 import { NextPage, NextPageContext } from 'next';
 import { getServerSideApolloState } from '../utils/getServerSideApolloState'
-import withApollo from '../apolloClient'
+import withApollo from '../apolloClient';
 
 export async function getServerSideProps(ctx: NextPageContext) {
 

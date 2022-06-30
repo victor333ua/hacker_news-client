@@ -1,0 +1,3 @@
+mutation ChangeAvatar($imageLink: String!, $deletehash: String!) {
+    changeAvatar(imageLink: $imageLink, deletehash: $deletehash) 
+}

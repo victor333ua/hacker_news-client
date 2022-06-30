@@ -1,18 +1,20 @@
 import { useApolloClient } from "@apollo/client";
-import { Box, Container, Flex, Text } from "@chakra-ui/layout";
+import { Box, Container, Flex, Image, Button } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
 import { modifyCacheUserIsOnline } from "../utils/cache";
 import { changeAuth } from '../utils/changeAuth';
 import { useMySubscriptions } from "../utils/useMySubscriptions";
 import { useLogoutMutation, useLogWithValidTokenMutation, useMeQuery } from './../generated/graphql';
 import { MyIconButton } from "./MyIconButton";
+import { Profile } from "./profile";
 
 
 export const NavBar: React.FC = () => {
     const client = useApolloClient();
     const router = useRouter();
+    const [isProfileVisible, setProfileVisible] = useState(false);
 
     const { data, loading } = useMeQuery();
 
@@ -73,7 +75,8 @@ export const NavBar: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lastTime, isLogged]);
     
-// subscribe/unsubscr when auth has changed     
+// subscribe/unsubscr when auth has changed 
+    // console.log(`userId=${userId}`);   
     useMySubscriptions(userId, client);
     
     if (loading || lodingLogout) return <div>me fetching ...</div>;
@@ -81,6 +84,8 @@ export const NavBar: React.FC = () => {
     if (errorLogout) return <div>error logout</div>;
 
     return (
+        <>
+        {isProfileVisible && <Profile setProfileVisible={setProfileVisible}/>}
         <Flex zIndex={1} position="sticky" top={0} p={4}>
              <Box
                 mt={-4}            
@@ -90,12 +95,12 @@ export const NavBar: React.FC = () => {
                 flex="1" 
                 bg="gray.200"            
             >
-                <Container  maxW="1000px" >  
+                <Container  maxW='full' >  
                     <Flex mx="auto" alignItems="center">
                         <MyIconButton
                             name='all posts'  
                             icon={<MdHome />}
-                            onClick={() => router.push('/', undefined, {shallow: true})}
+                            onClick={() => router.push('/')}
                         />                                 
                         {isLogged  
                             ? (<>                          
@@ -104,15 +109,29 @@ export const NavBar: React.FC = () => {
                                 icon={<MdEditCalendar />}
                                 onClick={() => router.push('/createPost')}
                             />
-                           <Text  
-                                ml="auto"
-                                mr={6} 
-                                fontSize="lg" 
-                                as="u" 
-                                fontWeight="medium"
+                            <Box display='flex' flexDirection='row' 
+                                 ml="auto"
+                                 mr={6} 
                             >
-                               {data!.me.name}
-                            </Text> 
+                                <Image src={data.me.imageLink as string} alt='avatar'
+                                        boxSize='40px' borderRadius='full'
+                                        objectFit='cover' 
+                                        objectPosition='top'
+                                        fallbackSrc='avatar-default.png'
+                                />
+                                <Button 
+                                    variant='link'
+                                    ml={2}
+                                    _focus={{}} 
+                                    fontSize="lg" 
+                                    fontWeight="medium"
+                                    bg="gray.200"
+                                    color='black'
+                                    onClick={() => setProfileVisible(true)}
+                                >
+                                    {data!.me.name}
+                                </Button> 
+                            </Box>
                             <MyIconButton
                                 name='logout'
                                 icon={<MdLogout />}                                                              
@@ -130,6 +149,7 @@ export const NavBar: React.FC = () => {
                 </Container>
             </Box>
         </Flex>
+        </>
     );   
 }
 
