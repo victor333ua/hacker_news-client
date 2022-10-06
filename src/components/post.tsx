@@ -1,12 +1,13 @@
 import { useColorMode } from '@chakra-ui/system';
 import React from 'react'
 import { MeQuery, RegularPostFragment } from '../generated/graphql';
-import { Box, Divider, Flex, Text } from '@chakra-ui/react';
+import { Box, Divider, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import { MyIconButton } from './MyIconButton';
+import { MyIconButton } from './myIconButton';
 import { MdDeleteOutline, MdOpenInFull, MdThumbDownOffAlt, MdThumbUpOffAlt } from 'react-icons/md';
 import { useDeletePostMutation, useVoteMutation } from './../generated/graphql';
 import { modifyCacheDeletePost } from '../utils/cache';
+import { ExtPost } from './extPost';
 
 const bgColor = { light: 'gray.50', dark: 'gray.900' }
 const color = { light: 'black', dark: 'white' }
@@ -18,6 +19,8 @@ interface postProps {
 
 export const Post: React.FC<postProps> = ({ post, data }) => {
     const { colorMode } = useColorMode();
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const [deletePost] = useDeletePostMutation({
          variables: { postId: post.id },
@@ -75,6 +78,9 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
    
     const date = format(new Date(parseInt(post.createdAt)), 'dd MMM yyyy H:mm');
     const name = post.postedBy.email.split('@')[0];
+
+    if (isOpen) return <ExtPost post={post} onClose={onClose} />
+
     return (
         <Box 
           p={5}
@@ -102,7 +108,8 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
                     icon={<MdOpenInFull />}
                     mr="auto"
                     size="xs"
-                    onClick={()=>{}}
+                    onClick={onOpen}
+                    _focus={{}}
                 />
                 <Flex flexDirection="column" textAlign="center" >             
                     <MyIconButton

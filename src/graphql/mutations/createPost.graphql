@@ -1,5 +1,15 @@
-mutation CreatePost($description: String!, $url: String!) {
-    createPost(description: $description, url: $url) {
-        ...RegularPost
-    }
+#import '../fragments/regularPost.graphql'
+mutation CreatePost(
+    $description: String!, $musicUrl: String, $imageLink: String,
+    $deleteHash: String, $lat: Float, $lng: Float) {
+        createPost(
+            description: $description,
+            musicUrl: $musicUrl,
+            imageLink: $imageLink,
+            deleteHash: $deleteHash,
+            lat: $lat,
+            lng: $lng
+        ) {
+            ...RegularPost
+        }
 }

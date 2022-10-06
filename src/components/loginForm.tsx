@@ -2,10 +2,11 @@ import { useApolloClient } from '@apollo/client';
 import { Button, Flex } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
-import { InputField } from '../components/InputField';
+import { InputField } from '../components/inputField';
 import { afterLogin } from '../utils/afterLogin';
 import { useLoginMutation } from './../generated/graphql';
 import * as Yup from 'yup';
+import React from 'react';
 
 export const LoginForm = () => {
     const client = useApolloClient();
@@ -25,29 +26,18 @@ export const LoginForm = () => {
                     .required('Required')
             })}
             onSubmit={async (values, { setErrors }) => {
-            
                 const { data, errors } = await login({
                     variables: values,
                     errorPolicy: 'all'
-                    // update: (cache, { data }) => {
-                    //     if (!data) return;
-                    //     const me = {...data.login.user};
-                    //     cache.writeQuery<MeQuery>({
-                    //         query: MeDocument,
-                    //         data: {
-                    //             __typename: "Query",
-                    //             me
-                    //         }    
-                    //     });
-                    // }
                 });
-                
                 if (data) { 
-                    const strToken = data?.login.token as string;              
-                    afterLogin(client, strToken, router);
+                    afterLogin(client, router, data.login);
                 } else if (errors){
-                    const objError = JSON.parse(errors[0].message);
-                    setErrors(objError);
+                    const err = errors[0].message;
+                    if (typeof err === 'string')
+                        setErrors({ email: err });
+                    else 
+                        setErrors(JSON.parse(err));
                 }                    
             }}
         >
@@ -76,20 +66,6 @@ export const LoginForm = () => {
                             >
                                 login
                             </Button>
-                            {/* <Flex mt={4} >
-                                <Text fontSize="sm" fontStyle="italic">New to us?</Text>
-                                <Button
-                                    ml={2} 
-                                    variant="link" 
-                                    colorScheme="blue" 
-                                    size="sm"
-                                    _focus={{ boxShadow: 'none !important' }}
-                                    _active={{ border: '1px blue !important' }}
-                                    onClick={() => router.push("/register")}
-                                >
-                                    Register
-                                </Button>
-                            </Flex> */}
                         </Flex> 
                     </Form> 
             )}                    

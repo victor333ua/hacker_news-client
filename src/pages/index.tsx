@@ -1,9 +1,10 @@
-import AllPosts from '../components/AllPosts';
-import { Layout } from '../components/Layout';
-import { NavBar } from '../components/NavBar';
+import AllPosts from '../components/allPosts';
+import { Layout } from '../components/layout';
+import { NavBar } from '../components/navBar';
 import { NextPage, NextPageContext } from 'next';
 import { getServerSideApolloState } from '../utils/getServerSideApolloState'
 import withApollo from '../apolloClient';
+import React from 'react';
 
 export async function getServerSideProps(ctx: NextPageContext) {
 
@@ -16,14 +17,14 @@ export async function getServerSideProps(ctx: NextPageContext) {
   }
 };
 
-const Index: NextPage = (props: any) => {
+const Index: NextPage = () => {
     return (
         <div>
-            <NavBar {...props} />
+           <NavBar />
             <Layout>
-                <AllPosts {...props} />     
+                <AllPosts />     
             </Layout> 
-        </div>            
+        </div>
     )
 }
 

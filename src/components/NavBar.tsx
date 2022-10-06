@@ -1,15 +1,14 @@
 import { useApolloClient } from "@apollo/client";
-import { Box, Container, Flex, Image, Button } from "@chakra-ui/react";
+import { Box, Flex, Image, Button } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from 'react';
 import { MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
 import { modifyCacheUserIsOnline } from "../utils/cache";
 import { changeAuth } from '../utils/changeAuth';
 import { useMySubscriptions } from "../utils/useMySubscriptions";
-import { useLogoutMutation, useLogWithValidTokenMutation, useMeQuery } from './../generated/graphql';
-import { MyIconButton } from "./MyIconButton";
+import { useLogoutMutation, useLogWithValidTokenMutation, useMeQuery } from '../generated/graphql';
+import { MyIconButton } from "./myIconButton";
 import { Profile } from "./profile";
-
 
 export const NavBar: React.FC = () => {
     const client = useApolloClient();
@@ -18,7 +17,7 @@ export const NavBar: React.FC = () => {
 
     const { data, loading } = useMeQuery();
 
-    const [logout,  { data: logoutData, error: errorLogout, loading: lodingLogout }] =
+    const [logout,  { error: errorLogout, loading: lodingLogout }] =
         useLogoutMutation({ 
             errorPolicy: 'all',
             update: (cache, { data }) => {
@@ -33,10 +32,12 @@ export const NavBar: React.FC = () => {
                 cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
                 cache.gc(); 
 
-                // router.reload(); // ssr
                 router.replace('/');// re-mount component in withApollo
-                 
-                // client.clearStore() // don't work
+
+                // don't work - current allPosts page don't updated, 'cause
+                // MeQuery do not renew data in the page
+                // router.reload(); // ssr
+                // client.clearStore() 
                 //     .then(() => {
                 //         // router.push('/', undefined, { shallow: false });
                 //     }) 
@@ -86,69 +87,56 @@ export const NavBar: React.FC = () => {
     return (
         <>
         {isProfileVisible && <Profile setProfileVisible={setProfileVisible}/>}
-        <Flex zIndex={1} position="sticky" top={0} p={4}>
              <Box
-                mt={-4}            
-                p={5}
+                width='100%'
+                position="sticky" top='0px' zIndex='10'
+                py='10px'
+                px='25px'
                 shadow="md"
-                borderWidth="1px"
-                flex="1" 
                 bg="gray.200"            
             >
-                <Container  maxW='full' >  
-                    <Flex mx="auto" alignItems="center">
+                <Flex alignItems="center" justifyContent='space-between'>
+                    <MyIconButton
+                      name='all posts'  
+                      icon={<MdHome />}
+                      onClick={() => router.push('/')}
+                    />                                       
+                    {isLogged  
+                    ? (<>                          
                         <MyIconButton
-                            name='all posts'  
-                            icon={<MdHome />}
-                            onClick={() => router.push('/')}
-                        />                                 
-                        {isLogged  
-                            ? (<>                          
-                            <MyIconButton
-                                name='createPost'  
-                                icon={<MdEditCalendar />}
-                                onClick={() => router.push('/createPost')}
+                            name='createPost'  
+                            icon={<MdEditCalendar />}
+                            ml='25px'
+                            onClick={() => router.push('/createPost')}
+                        />          
+                        <Box  
+                            ml="auto"
+                            mr={6} 
+                        >
+                            <Image 
+                                src={data.me.imageLink as string} 
+                                alt='avatar'
+                                boxSize='40px' borderRadius='full'
+                                objectFit='cover' 
+                                objectPosition='top'
+                                fallbackSrc='avatar-default.png'
+                                onClick={() => setProfileVisible(true)}
                             />
-                            <Box display='flex' flexDirection='row' 
-                                 ml="auto"
-                                 mr={6} 
-                            >
-                                <Image src={data.me.imageLink as string} alt='avatar'
-                                        boxSize='40px' borderRadius='full'
-                                        objectFit='cover' 
-                                        objectPosition='top'
-                                        fallbackSrc='avatar-default.png'
-                                />
-                                <Button 
-                                    variant='link'
-                                    ml={2}
-                                    _focus={{}} 
-                                    fontSize="lg" 
-                                    fontWeight="medium"
-                                    bg="gray.200"
-                                    color='black'
-                                    onClick={() => setProfileVisible(true)}
-                                >
-                                    {data!.me.name}
-                                </Button> 
-                            </Box>
-                            <MyIconButton
-                                name='logout'
-                                icon={<MdLogout />}                                                              
-                                onClick={() => logout()}
-                            /> </>)      
-                            :  
-                            <MyIconButton
-                                name='login'  
-                                icon={<MdLogin />}
-                                ml="auto"
-                                onClick={() => router.push('/login')} 
-                            />
-                        }    
-                    </Flex>
-                </Container>
+                        </Box>
+                        <MyIconButton
+                             name='logout'
+                            icon={<MdLogout />}                                                              
+                            onClick={() => logout()}
+                        /> </>)      
+                    :  
+                        <MyIconButton
+                            name='login'  
+                            icon={<MdLogin />}
+                            onClick={() => router.push('/login')} 
+                        />                   
+                    }    
+                </Flex>            
             </Box>
-        </Flex>
         </>
     );   
 }

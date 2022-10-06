@@ -1,5 +1,5 @@
 import { ApolloCache, gql } from '@apollo/client';
-import { RegularPostFragment } from '../generated/graphql';
+import { RegularPostFragment, RegularPostFragmentDoc } from '../generated/graphql';
 
 export const modifyCacheDeletePost = 
     (cache: ApolloCache<Object>, postId: number | undefined) => {
@@ -8,12 +8,12 @@ export const modifyCacheDeletePost =
         cache.modify({
             fields: {
                 feed(cached, { readField }) {
-                    return ({
+                    return {
                         posts: cached.posts.filter(
-                            (p: any) => postId !== readField('id', p)
+                            (p: any) => postId != readField('id', p)
                         ),
                         hasMore: cached.hasMore
-                    });        
+                    };        
                 }
             },
         })         
@@ -56,12 +56,14 @@ export const modifyCacheAddPost =
     cache.modify({
         fields: {
             feed(cached = { posts: [], hasMore: false }) {
-                const newFeed = {
-                    posts: [newPost, ...cached.posts],
+                const newPostRef = cache.writeFragment({
+                    data: newPost,
+                    fragment: RegularPostFragmentDoc
+                });
+                return ({
+                    posts: [newPostRef, ...cached.posts],
                     hasMore: cached.hasMore
-                };           
-                cache.evict({ fieldName: 'feed' });       
-                return newFeed;
+                });           
             }
         }
     });

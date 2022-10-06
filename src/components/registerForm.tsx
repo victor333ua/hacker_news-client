@@ -1,13 +1,16 @@
-import { Container, Flex } from '@chakra-ui/layout';
-import { Box, Button } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/layout';
+import { Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import router from 'next/router';
 import React from 'react'
-import { InputField } from './InputField';
-import { MeDocument, MeQuery, useSignupMutation } from '../generated/graphql';
+import { InputField } from './inputField';
+import {useSignupMutation } from '../generated/graphql';
 import * as Yup from 'yup';
+import { useApolloClient } from '@apollo/client';
+import { afterLogin } from '../utils/afterLogin';
 
 export const RegisterForm = () => {
+    const client = useApolloClient();
     const [signup] = useSignupMutation({ errorPolicy: 'all'});
     return (
         <Formik
@@ -25,31 +28,17 @@ export const RegisterForm = () => {
                     .oneOf([Yup.ref('password')], 'passwords do not match')
             })}
             onSubmit={async (values, { setErrors }) => {
-               
                 const { data, errors } = await signup({
                     variables: values,
-                    update: (cache, { data }) => {
-                        if (!data) return;
-                        cache.writeQuery<MeQuery>({
-                            query: MeDocument,
-                            data: {
-                                __typename: "Query",
-                                me: data.signup.user
-                            }    
-                        })
-                    }
                 }); 
-
-                if (!errors) { 
-                    const strToken = data?.signup.token as string;              
-                    localStorage.setItem('token', strToken);
-                    // for ssr
-                    document.cookie = "token=" + encodeURIComponent(strToken);                   
-        
-                    router.push("/");                                     
-                } else {
-                    const objError = JSON.parse(errors[0].message);
-                    setErrors(objError);
+                if (data) { 
+                    afterLogin(client, router, data.signup);                                     
+                } else if (errors) {
+                    const err = errors[0].message;
+                    if (typeof err === 'string')
+                        setErrors({ email: err });
+                    else 
+                        setErrors(JSON.parse(err));
                 } 
             }}   
         >

@@ -38,7 +38,7 @@ export const getLink = (ctx?: NextPageContext) => {
         //     authorization: auth  
         // },
         fetchOptions: {
-            credentials: "include" as const,
+            credentials: 'include',
         }
     });
 
@@ -47,7 +47,7 @@ export const getLink = (ctx?: NextPageContext) => {
     if (isServer()) return httpLink;
 
     const wsLink = new WebSocketLink({
-        url: `ws${process.env.NEXT_PUBLIC_API_URL}graphql`,
+        url: `ws${process.env.NEXT_PUBLIC_API_URL}ws`,
         // lazyCloseTimeout: 50000,
         // retryAttempts: Infinity,
         lazy: true, // make the client does not connect immediately
@@ -58,8 +58,6 @@ export const getLink = (ctx?: NextPageContext) => {
         },
         connectionParams: () => ({ authorization: auth })  
     });
-
-    // wsLink.concat(authLink);
 
     return split(
         ({ query }) => {

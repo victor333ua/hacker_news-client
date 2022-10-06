@@ -1,15 +1,21 @@
-import { Box, Button, Container, Flex, HStack } from '@chakra-ui/react';
+import { Box, Button, Container, Flex, Text } from '@chakra-ui/react';
+import React, { useState } from 'react';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
 
-const googleLogin = async () => {
-    window.open(`http${process.env.NEXT_PUBLIC_API_URL}oauth2/google/login`, '_self');
- };
- 
- const gitHubLogin = () => {
-     window.open(`http${process.env.NEXT_PUBLIC_API_URL}oauth2/github/login`, '_self');
- };
-
  export const Oauth2Buttons = () => {
+    
+    const googleLogin = async () => {
+        window.open(
+            `http${process.env.NEXT_PUBLIC_API_URL}oauth2/google/login`,
+            '_self');
+     };
+     
+     const gitHubLogin = () => {
+         window.open(
+            `http${process.env.NEXT_PUBLIC_API_URL}oauth2/github/login`,
+            '_self');
+     };
+   
     return (
     <Box>
         <Container m='30px 5px' pos='relative' h='fit-content' centerContent >

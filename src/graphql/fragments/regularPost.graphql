@@ -2,15 +2,19 @@ fragment RegularPost on Link {
     id
     description
     imageLink
+    deleteHash
+    musicUrl
     createdAt
     votesUp
     votesDown
     voteValue
+    lng
+    lat
     postedBy {
         id
-        name
-        lastTime
         email
+        name
         imageLink
+        lastTime
     }
 }

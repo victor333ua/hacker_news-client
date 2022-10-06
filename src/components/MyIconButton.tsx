@@ -17,10 +17,9 @@ export const MyIconButton: React.FC<MyIconButtonProps> = ({ name, icon, onClick,
     return (
         // <NextLink href={href} passHref>         
             <IconButton
-                    mr={10}
-                    bg="gray.300"
                     // borderColor="gray.600"
                     color="gray.600"
+                    bgColor='gray.200'
                     {...props}
                     aria-label={name}
                     icon={icon}                  

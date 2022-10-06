@@ -1,9 +1,5 @@
 query Me {
   me {
-    id
-    name
-    lastTime
-    imageLink
-    deletehash
+    ...RegularUser
   }
 }

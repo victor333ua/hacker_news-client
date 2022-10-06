@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import React, { createRef, FC, Ref, useEffect, useRef, useState } from "react";
 import {
     Modal,
     ModalOverlay,
@@ -21,6 +21,7 @@ import { deleteImage, uploadImage } from '../services/imageService'
 import { useApolloClient } from "@apollo/client";
 import { modifyCacheChangeAvatar } from "../utils/cache";
 import { useChangeAvatarMutation } from './../generated/graphql';
+import { SelectFile } from "./selectFile";
 
 type InputProps = {
     setProfileVisible: React.Dispatch<React.SetStateAction<boolean>>
@@ -36,31 +37,26 @@ export const Profile: FC<InputProps> = ({setProfileVisible}: InputProps) => {
   };
 
   const client = useApolloClient();
-  const refToSelectedFile = useRef<File | null>(null);
 
-  const [srcFile, setSrcFile] = useState('avatar-default.png');
+  const refToSelectedFile = useRef<File | null>(null);
+  const [srcFile, setFileSrc] = useState('avatar-default.png');
+  const hiddenInputRef: Ref<HTMLInputElement> = createRef();
+
   const [loading, setLoading] = useState(false);
   const [errorAvatar, setErrorAvatar] = useState('');
 
   const { data } = useMeQuery();
   const imageLink = data?.me.imageLink;
   useEffect(() => {
-    if (imageLink) setSrcFile(imageLink);
+    if (imageLink) setFileSrc(imageLink);
   },[imageLink])
  
   const [changeAvatar] = useChangeAvatarMutation();
 
+  // get Imgur Data from my server
   const { data: imgurData, loading: imgurLoading, error: imgurError } = useImgurQuery();
   if (imgurLoading) return <div>imgur fetching</div>;
   if (imgurError) return <div> imgur error</div>;
-
-  let hiddenInput: HTMLInputElement | null;
-
-  const onPhotoSelect = (file: File) => {
-    refToSelectedFile.current = file;
-    const src = URL.createObjectURL(file);
-    setSrcFile(src);
-  };
 
   const onSave = async () => {
     if (!imgurData) { setErrorAvatar('no data for imgur'); return; }
@@ -107,18 +103,14 @@ export const Profile: FC<InputProps> = ({setProfileVisible}: InputProps) => {
                     <Button 
                         variant='link' _focus={{}}  
                         color='blue' fontStyle='italic' bg='white'
-                        onClick={() => hiddenInput!.click()}
+                        onClick={() => hiddenInputRef.current?.click()}
                     >
                         Change
                     </Button>
-                    <input
-                        hidden
-                        type='file'
-                        ref={el => hiddenInput = el}
-                        onChange={(e) => {
-                          const list = e.target.files;
-                          if (list) onPhotoSelect(list[0])
-                        }}
+                    <SelectFile 
+                      ref={hiddenInputRef}
+                      setFileSrc={setFileSrc} 
+                      refToFile={refToSelectedFile}
                     />
                 </Flex>
                 <Flex justifyContent='center' direction='column'>           

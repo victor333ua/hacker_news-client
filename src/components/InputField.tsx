@@ -8,7 +8,8 @@ import {
   InputProps, 
   InputRightElement, 
   Textarea, 
-  TextareaProps
+  TextareaProps,
+  Text
 } from '@chakra-ui/react';
 import { useField } from 'formik';
 import React from 'react';
@@ -51,7 +52,19 @@ export const InputField: React.FC<InputFieldProps> = ({ ...props }) => {
                 {...props}
                 id={props.name}
               />
-              {touched && error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
+              {touched && error
+               ?  <Text
+                    color='red'
+                    fontSize='md'
+                    fontWeight='bold'
+                    border='2px solid red'
+                    borderRadius='md'
+                    mb='10px'
+                    py='5px'
+                    px='10px'
+                  >{error}
+                  </Text> 
+                : null}
             </FormControl>
         );
 }

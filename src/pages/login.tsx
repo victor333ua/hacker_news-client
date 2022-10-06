@@ -27,7 +27,7 @@ const Login: NextPage = () => {
     const [isLogin, setLogin] = useState(true);
     useEffect(() => { isFirstRenderRef.current = false },[]);
 
-    const BgImage = ({ isLogin, isAnimate }) => {
+    const BgImage = ({ isAnimate }) => {
         return (
             <Box w='inherit' h='inherit' position='absolute' zIndex={-1}>
                 <Image src='Ukraine-Flag.png' alt='bg' 
@@ -38,7 +38,7 @@ const Login: NextPage = () => {
            
     return (
         <Container  w='100%' maxH='100vh' p={1} centerContent>
-            <BgImage isLogin={isLogin} isAnimate={!isFirstRenderRef.current} />
+            <BgImage isAnimate={!isFirstRenderRef.current} />
             <Container
                  maxW="300px" mt='15%'
                  border='2px solid blue' p='20px' borderRadius='md' 

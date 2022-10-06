@@ -36,13 +36,16 @@ export type IsOnlinePayload = {
 export type Link = {
   __typename?: 'Link';
   createdAt: Scalars['String'];
+  deleteHash?: Maybe<Scalars['String']>;
   description: Scalars['String'];
   id: Scalars['Int'];
   imageLink?: Maybe<Scalars['String']>;
+  lat?: Maybe<Scalars['Float']>;
+  lng?: Maybe<Scalars['Float']>;
+  musicUrl?: Maybe<Scalars['String']>;
   postedBy: User;
   postedById: Scalars['Int'];
-  url: Scalars['String'];
-  voteValue?: Maybe<Scalars['Int']>;
+  voteValue: Scalars['Int'];
   votesDown: Scalars['Int'];
   votesUp: Scalars['Int'];
 };
@@ -73,8 +76,12 @@ export type MutationChangeAvatarArgs = {
 
 
 export type MutationCreatePostArgs = {
+  deleteHash?: Maybe<Scalars['String']>;
   description: Scalars['String'];
-  url: Scalars['String'];
+  imageLink?: Maybe<Scalars['String']>;
+  lat?: Maybe<Scalars['Float']>;
+  lng?: Maybe<Scalars['Float']>;
+  musicUrl?: Maybe<Scalars['String']>;
 };
 
 
@@ -156,8 +163,8 @@ export type User = {
   id: Scalars['Int'];
   imageLink?: Maybe<Scalars['String']>;
   lastTime?: Maybe<Scalars['String']>;
-  links: Array<Link>;
-  name: Scalars['String'];
+  links?: Maybe<Array<Maybe<Link>>>;
+  name?: Maybe<Scalars['String']>;
 };
 
 export type VotePayload = {
@@ -167,7 +174,9 @@ export type VotePayload = {
   value: Scalars['Int'];
 };
 
-export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } };
+export type RegularPostFragment = { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue: number, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, lastTime?: string | null | undefined } };
+
+export type RegularUserFragment = { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined };
 
 export type ChangeAvatarMutationVariables = Exact<{
   imageLink: Scalars['String'];
@@ -179,11 +188,15 @@ export type ChangeAvatarMutation = { __typename?: 'Mutation', changeAvatar: bool
 
 export type CreatePostMutationVariables = Exact<{
   description: Scalars['String'];
-  url: Scalars['String'];
+  musicUrl?: Maybe<Scalars['String']>;
+  imageLink?: Maybe<Scalars['String']>;
+  deleteHash?: Maybe<Scalars['String']>;
+  lat?: Maybe<Scalars['Float']>;
+  lng?: Maybe<Scalars['Float']>;
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue: number, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, lastTime?: string | null | undefined } } };
 
 export type DeletePostMutationVariables = Exact<{
   postId: Scalars['Int'];
@@ -203,7 +216,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', token: string, user: { __typename?: 'User', id: number, name: string } } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', token: string, user: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined } } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -216,7 +229,7 @@ export type SignupMutationVariables = Exact<{
 }>;
 
 
-export type SignupMutation = { __typename?: 'Mutation', signup: { __typename?: 'AuthPayload', token: string, user: { __typename?: 'User', id: number, name: string } } };
+export type SignupMutation = { __typename?: 'Mutation', signup: { __typename?: 'AuthPayload', token: string, user: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined } } };
 
 export type VoteMutationVariables = Exact<{
   value: Scalars['Int'];
@@ -232,12 +245,12 @@ export type AllPostsQueryVariables = Exact<{
 }>;
 
 
-export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } }> } };
+export type AllPostsQuery = { __typename?: 'Query', feed: { __typename?: 'LinksPayload', hasMore: boolean, posts: Array<{ __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue: number, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, lastTime?: string | null | undefined } }> } };
 
 export type AllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllUsersQuery = { __typename?: 'Query', allUsers: Array<{ __typename?: 'User', id: number, name: string, links: Array<{ __typename?: 'Link', description: string, createdAt: string }> }> };
+export type AllUsersQuery = { __typename?: 'Query', allUsers: Array<{ __typename?: 'User', id: number, name?: string | null | undefined, links?: Array<{ __typename?: 'Link', description: string, createdAt: string } | null | undefined> | null | undefined }> };
 
 export type ImgurQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -247,12 +260,12 @@ export type ImgurQuery = { __typename?: 'Query', imgur: { __typename?: 'ImgurPay
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined } };
 
 export type PostCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue?: number | null | undefined, postedBy: { __typename?: 'User', id: number, name: string, lastTime?: string | null | undefined, email: string, imageLink?: string | null | undefined } } } };
+export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, votesUp: number, votesDown: number, voteValue: number, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, lastTime?: string | null | undefined } } } };
 
 export type PostDeletedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -274,17 +287,31 @@ export const RegularPostFragmentDoc = gql`
   id
   description
   imageLink
+  deleteHash
+  musicUrl
   createdAt
   votesUp
   votesDown
   voteValue
+  lng
+  lat
   postedBy {
     id
-    name
-    lastTime
     email
+    name
     imageLink
+    lastTime
   }
+}
+    `;
+export const RegularUserFragmentDoc = gql`
+    fragment RegularUser on User {
+  id
+  email
+  name
+  imageLink
+  deletehash
+  lastTime
 }
     `;
 export const ChangeAvatarDocument = gql`
@@ -320,8 +347,15 @@ export type ChangeAvatarMutationHookResult = ReturnType<typeof useChangeAvatarMu
 export type ChangeAvatarMutationResult = Apollo.MutationResult<ChangeAvatarMutation>;
 export type ChangeAvatarMutationOptions = Apollo.BaseMutationOptions<ChangeAvatarMutation, ChangeAvatarMutationVariables>;
 export const CreatePostDocument = gql`
-    mutation CreatePost($description: String!, $url: String!) {
-  createPost(description: $description, url: $url) {
+    mutation CreatePost($description: String!, $musicUrl: String, $imageLink: String, $deleteHash: String, $lat: Float, $lng: Float) {
+  createPost(
+    description: $description
+    musicUrl: $musicUrl
+    imageLink: $imageLink
+    deleteHash: $deleteHash
+    lat: $lat
+    lng: $lng
+  ) {
     ...RegularPost
   }
 }
@@ -342,7 +376,11 @@ export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, C
  * const [createPostMutation, { data, loading, error }] = useCreatePostMutation({
  *   variables: {
  *      description: // value for 'description'
- *      url: // value for 'url'
+ *      musicUrl: // value for 'musicUrl'
+ *      imageLink: // value for 'imageLink'
+ *      deleteHash: // value for 'deleteHash'
+ *      lat: // value for 'lat'
+ *      lng: // value for 'lng'
  *   },
  * });
  */
@@ -419,14 +457,13 @@ export type LogWithValidTokenMutationOptions = Apollo.BaseMutationOptions<LogWit
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
-    user {
-      id
-      name
-    }
     token
+    user {
+      ...RegularUser
+    }
   }
 }
-    `;
+    ${RegularUserFragmentDoc}`;
 export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
 
 /**
@@ -487,14 +524,13 @@ export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, L
 export const SignupDocument = gql`
     mutation Signup($email: String!, $password: String!) {
   signup(email: $email, password: $password) {
-    user {
-      id
-      name
-    }
     token
+    user {
+      ...RegularUser
+    }
   }
 }
-    `;
+    ${RegularUserFragmentDoc}`;
 export type SignupMutationFn = Apollo.MutationFunction<SignupMutation, SignupMutationVariables>;
 
 /**
@@ -671,14 +707,10 @@ export type ImgurQueryResult = Apollo.QueryResult<ImgurQuery, ImgurQueryVariable
 export const MeDocument = gql`
     query Me {
   me {
-    id
-    name
-    lastTime
-    imageLink
-    deletehash
+    ...RegularUser
   }
 }
-    `;
+    ${RegularUserFragmentDoc}`;
 
 /**
  * __useMeQuery__

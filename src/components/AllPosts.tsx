@@ -1,4 +1,4 @@
-import { Button, Flex, Stack } from '@chakra-ui/react';
+import { Box, Button, Flex, Stack } from '@chakra-ui/react';
 import React from 'react';
 import { useAllPostsQuery, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
@@ -8,21 +8,21 @@ const AllPosts: React.FC = () => {
    
     const { loading, error, data, fetchMore } = useAllPostsQuery({
       variables: { feedCursor: undefined, feedTake: 5 },
-      fetchPolicy: isServer() ? 'cache-first' : 'cache-only'
+      fetchPolicy: isServer() ? 'network-only' : 'cache-only'
     });
-    const { data: dataMe } = useMeQuery();
+    const { data: dataMe } = useMeQuery({ fetchPolicy: 'cache-only'});
 
     if (!data) {
       return (
-        <>
+        <div>
           {loading && <div>loading...</div>}
           {error && <div>{`server error: ${error.name}`}</div>}
-        </>
+        </div>
       );
     };
     
     return (
-       <div>
+       <Box>
           <Stack spacing={8} >
             {data.feed.posts.map( post => <Post key={post.id} post={post} data={dataMe} /> )}
           </Stack>
@@ -43,7 +43,7 @@ const AllPosts: React.FC = () => {
                   </Button> 
                 </Flex> 
           }      
-        </div>
+        </Box>
     )
 }
   
