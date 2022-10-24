@@ -1,0 +1,9 @@
+fragment PostVotes on Link {
+    ...RegularPost
+    votesUp
+    votesDown
+    voteValue
+    postedBy {
+       ...RegularUser
+    }
+}

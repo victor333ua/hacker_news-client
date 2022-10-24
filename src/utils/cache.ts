@@ -1,5 +1,5 @@
 import { ApolloCache, gql } from '@apollo/client';
-import { RegularPostFragment, RegularPostFragmentDoc } from '../generated/graphql';
+import { PostBasicFragment, PostBasicFragmentDoc } from '../generated/graphql';
 
 export const modifyCacheDeletePost = 
     (cache: ApolloCache<Object>, postId: number | undefined) => {
@@ -21,23 +21,25 @@ export const modifyCacheDeletePost =
 
 export const modifyCacheVotePost = 
     (cache: ApolloCache<Object>, 
-    { value, postId }: { value: number, postId: number}) => { 
-
+    { delta, postId, isSubscription }: { delta: number, postId: number, isSubscription: boolean}) => { 
+// from subscriptions, delta depends on someone voted first time or twice
     cache.modify({
         id: `Link:${postId}`,
         fields: {
+            voteValue(cached) { return !isSubscription ? cached + delta : cached },
             votesUp(cached) {
-                if (value === 1 || value === 2) return cached + 1;
-                if (value === -2 ) return cached - 1;
+                if (delta === 1 || delta === 2) return cached + 1;
+                if (delta === -2 ) return cached - 1;
                 return cached;
             },
             votesDown(cached) {
-                if (value === -1 || value === -2) return cached + 1;
-                if (value === 2 ) return cached - 1;
+                if (delta === -1 || delta === -2) return cached + 1;
+                if (delta === 2 ) return cached - 1;
                 return cached;
             }
         }
     });
+};
 
     // cache.modify({
     //     fields: {
@@ -46,11 +48,10 @@ export const modifyCacheVotePost =
     //         }
     //     }       
     // });
-};
 
 export const modifyCacheAddPost = 
     (cache: ApolloCache<Object>,
-     newPost: RegularPostFragment | undefined) => {
+     newPost: PostBasicFragment | undefined) => {
 
     if (!newPost) return;
     cache.modify({
@@ -58,7 +59,8 @@ export const modifyCacheAddPost =
             feed(cached = { posts: [], hasMore: false }) {
                 const newPostRef = cache.writeFragment({
                     data: newPost,
-                    fragment: RegularPostFragmentDoc
+                    fragment: PostBasicFragmentDoc,
+                    fragmentName: 'PostBasic'
                 });
                 return ({
                     posts: [newPostRef, ...cached.posts],
@@ -77,7 +79,7 @@ export const  modifyCacheUserIsOnline =
         cache.writeFragment({
             id: `User:${userId}`,
             fragment: gql`
-                fragment LastT on User {
+                fragment LastTime on User {
                     lastTime
                 }
             `,

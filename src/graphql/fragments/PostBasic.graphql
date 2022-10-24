@@ -1,0 +1,6 @@
+fragment PostBasic on Link {
+    ...RegularPost
+    postedBy {
+        ...RegularUser
+    }
+}

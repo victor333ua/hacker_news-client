@@ -1,8 +1,8 @@
 import { ApolloCache, ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { useEffect } from "react";
 import { PostCreatedDocument, PostCreatedSubscription, PostCreatedSubscriptionVariables, PostDeletedDocument, PostDeletedSubscription, PostDeletedSubscriptionVariables, PostVotedDocument, PostVotedSubscription, PostVotedSubscriptionVariables, UserIsOnlineDocument, UserIsOnlineSubscription, UserIsOnlineSubscriptionVariables } from "../generated/graphql";
-import { modifyCacheAddPost, modifyCacheDeletePost, modifyCacheUserIsOnline, modifyCacheVotePost } from './cache';
-import { isServer } from "./isServer";
+import { modifyCacheAddPost, modifyCacheDeletePost, modifyCacheUserIsOnline, modifyCacheVotePost } from '../utils/cache';
+import { isServer } from "../utils/isServer";
 
 export const useMySubscriptions = (userId: number | undefined, client: ApolloClient<object>) => {
     const cache = client.cache as ApolloCache<NormalizedCacheObject>;
@@ -40,8 +40,8 @@ export const useMySubscriptions = (userId: number | undefined, client: ApolloCli
 
         const subscriptionPostVoted = observerPostVoted.subscribe(({ data }) => {
             if (!data) return;
-            const { value, postId } = data.postVoted;
-            modifyCacheVotePost(cache, { value, postId });
+            const { delta, postId } = data.postVoted;
+            modifyCacheVotePost(cache, { delta, postId, isSubscription: true });
         });
 
         const subscriptionUserIsOnline = observerUserIsOnline.subscribe(({ data }) => {

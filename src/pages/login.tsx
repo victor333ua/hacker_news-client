@@ -18,10 +18,6 @@ const loginButtonStyles = {
 }
 
 const Login: NextPage = () => {
-    // const router = useRouter();
-    // let isLogin: boolean;
-    // if (!router.isReady) isLogin = true;// ssr
-    // else isLogin = router.asPath === `/login#log`;
 
     const isFirstRenderRef = useRef<boolean>(true);
     const [isLogin, setLogin] = useState(true);

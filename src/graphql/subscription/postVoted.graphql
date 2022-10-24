@@ -1,6 +1,6 @@
 subscription PostVoted {
     postVoted {
         postId
-        value
+        delta
     }
 }

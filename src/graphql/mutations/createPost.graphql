@@ -10,6 +10,6 @@ mutation CreatePost(
             lat: $lat,
             lng: $lng
         ) {
-            ...RegularPost
+            ...PostBasic
         }
 }

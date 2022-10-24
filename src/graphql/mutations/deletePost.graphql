@@ -1,5 +1,3 @@
 mutation DeletePost($postId: Int!) {
-  deletePost(id: $postId) {
-    id
-  }
+  deletePost(id: $postId) 
 }

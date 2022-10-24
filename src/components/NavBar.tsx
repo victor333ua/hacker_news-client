@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
 import { modifyCacheUserIsOnline } from "../utils/cache";
 import { changeAuth } from '../utils/changeAuth';
-import { useMySubscriptions } from "../utils/useMySubscriptions";
+import { useMySubscriptions } from "../subscriptions/useMySubscriptions";
 import { useLogoutMutation, useLogWithValidTokenMutation, useMeQuery } from '../generated/graphql';
 import { MyIconButton } from "./myIconButton";
 import { Profile } from "./profile";
@@ -56,8 +56,8 @@ export const NavBar: React.FC = () => {
         });
 
     const isLogged = !!data?.me;
-    const userId = data?.me.id;
-    const lastTime = data?.me.lastTime;
+    const userId = data?.me?.id;
+    const lastTime = data?.me?.lastTime;
 
     useEffect(() => {
         window.onbeforeunload = () => {
@@ -114,7 +114,7 @@ export const NavBar: React.FC = () => {
                             mr={6} 
                         >
                             <Image 
-                                src={data.me.imageLink as string} 
+                                src={data?.me?.imageLink as string} 
                                 alt='avatar'
                                 boxSize='40px' borderRadius='full'
                                 objectFit='cover' 

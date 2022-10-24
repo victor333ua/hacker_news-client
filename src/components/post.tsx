@@ -1,19 +1,20 @@
 import { useColorMode } from '@chakra-ui/system';
 import React from 'react'
-import { MeQuery, RegularPostFragment } from '../generated/graphql';
+import { MeQuery, PostVotesFragment } from '../generated/graphql';
 import { Box, Divider, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { MyIconButton } from './myIconButton';
 import { MdDeleteOutline, MdOpenInFull, MdThumbDownOffAlt, MdThumbUpOffAlt } from 'react-icons/md';
 import { useDeletePostMutation, useVoteMutation } from './../generated/graphql';
-import { modifyCacheDeletePost } from '../utils/cache';
+import { modifyCacheDeletePost, modifyCacheVotePost, modifyCacheVotePostByUser } from '../utils/cache';
 import { ExtPost } from './extPost';
+import { getDeltaVoteValue } from './../utils/getDeltaVoteValue';
 
 const bgColor = { light: 'gray.50', dark: 'gray.900' }
 const color = { light: 'black', dark: 'white' }
 
 interface postProps {
-    post: RegularPostFragment,
+    post: PostVotesFragment,
     data: MeQuery | undefined
 };
 
@@ -27,7 +28,7 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
          errorPolicy: 'all',
          update: (cache, { data }) => {
              if (!data) return;
-             const postId = data.deletePost?.id;
+             const postId = data.deletePost;
              modifyCacheDeletePost(cache, postId);
          }
     });
@@ -35,29 +36,19 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
     const [vote] = useVoteMutation();
 
     const onVote = (value: number) => {
-        if (post.voteValue === value) return;
+        // check the vote of current user on this post 
+        const delta = getDeltaVoteValue(post.voteValue, value);
+        if (!delta) return;
         vote({
             variables: {
                 postId: post.id,
-                value
+                delta
             },
             update: (cache, data) => {
-                if (!data) return;
-                cache.modify({
-                    id:  `Link:${post.id}`,
-                    fields: {
-                        voteValue() { return value },
-                        votesUp(cached) {
-                            if (post.voteValue === 1) return cached - 1;
-                            return value === 1 ? cached + 1 : cached;
-                        },
-                        votesDown(cached) {
-                            if (post.voteValue === -1) return cached - 1;
-                            return value === -1 ? cached + 1 : cached;
-                        }
-                    }
-                })
-            }
+                if (!data) return;// error or the same voting
+                modifyCacheVotePost(
+                    cache, { delta, postId: post.id, isSubscription: false }
+                )}
         })
     };
     

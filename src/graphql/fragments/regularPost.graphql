@@ -5,16 +5,6 @@ fragment RegularPost on Link {
     deleteHash
     musicUrl
     createdAt
-    votesUp
-    votesDown
-    voteValue
     lng
     lat
-    postedBy {
-        id
-        email
-        name
-        imageLink
-        lastTime
-    }
 }

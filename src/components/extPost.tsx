@@ -13,14 +13,14 @@ import {
     Image,
     Flex
   } from '@chakra-ui/react';
-import { RegularPostFragment } from "../generated/graphql";
+import { PostVotesFragment } from "../generated/graphql";
 import { GoogleMapBase } from "./googleMapBase";
 import { Marker } from "./googleMarker";
 import { format } from "date-fns";
 
 type InputProps = {
   onClose: () => void,
-  post: RegularPostFragment,
+  post: PostVotesFragment,
 };
 
 export const ExtPost: FC<InputProps> = ({ onClose, post }) => {
