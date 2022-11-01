@@ -1,5 +1,17 @@
 import { ApolloCache, gql } from '@apollo/client';
 import { PostBasicFragment, PostBasicFragmentDoc } from '../generated/graphql';
+import { MeDocument, MeQuery, User } from "../generated/graphql";
+
+export const modifyCacheSetUser =
+    (cache: ApolloCache<Object>, user: User) => {
+        cache.writeQuery<MeQuery>({
+            query: MeDocument,
+            data: {
+                __typename: "Query",
+                me: user
+            }    
+        });
+    };
 
 export const modifyCacheDeletePost = 
     (cache: ApolloCache<Object>, postId: number | undefined) => {

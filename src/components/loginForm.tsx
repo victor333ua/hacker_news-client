@@ -31,7 +31,8 @@ export const LoginForm = () => {
                     errorPolicy: 'all'
                 });
                 if (data) { 
-                    afterLogin(client, router, data.login);
+                    afterLogin(client, data.login);
+                    router.push('/');
                 } else if (errors){
                     const err = errors[0].message;
                     if (typeof err === 'string')

@@ -32,7 +32,8 @@ export const RegisterForm = () => {
                     variables: values,
                 }); 
                 if (data) { 
-                    afterLogin(client, router, data.signup);                                     
+                    afterLogin(client, data.signup);
+                    router.push('/');                                     
                 } else if (errors) {
                     const err = errors[0].message;
                     if (typeof err === 'string')

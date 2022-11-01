@@ -5,6 +5,7 @@ import { NextPage, NextPageContext } from 'next';
 import { getServerSideApolloState } from '../utils/getServerSideApolloState'
 import withApollo from '../apolloClient';
 import React from 'react';
+import Oauth2Login from '../components/oauth2Login';
 
 export async function getServerSideProps(ctx: NextPageContext) {
 
@@ -20,7 +21,8 @@ export async function getServerSideProps(ctx: NextPageContext) {
 const Index: NextPage = () => {
     return (
         <div>
-           <NavBar />
+            <Oauth2Login />
+            <NavBar />
             <Layout>
                 <AllPosts />     
             </Layout> 

@@ -1,11 +1,10 @@
 import { ApolloClient } from "@apollo/client"
-import { NextRouter } from "next/router";
-import { MeDocument, MeQuery, User } from "../generated/graphql";
+import { User } from "../generated/graphql";
+import { modifyCacheSetUser } from "./cache";
 import { changeAuth } from "./changeAuth";
 
 export const afterLogin = 
     (client: ApolloClient<object>, 
-    router: NextRouter, 
     data: { token: string, user: User | undefined }) => {
     
     const strToken = data.token as string;              
@@ -13,20 +12,7 @@ export const afterLogin =
     // for ssr
     document.cookie = `token=${encodeURIComponent(strToken)}; path=/;`;               
 
-    if (data.user)
-        client.cache.writeQuery<MeQuery>({
-            query: MeDocument,
-            data: {
-                __typename: "Query",
-                me: data.user
-            }    
-        });
+    if (data.user) modifyCacheSetUser(client.cache, data.user);
 
     changeAuth(client); 
-
-    if (typeof router.query?.next === 'string') {
-        router.push(router.query.next) ;
-    } else {
-        router.push('/');
-    }                                                      
 } 

@@ -68,9 +68,9 @@ export const NavBar: React.FC = () => {
     
     useEffect(() => {
 // token was valid & we connected w/o login => 
-// update db & publish 'user is online' 
+// update db lastTime=null & publish 'user is online' 
         if (lastTime && isLogged) {
-            logWithToken();
+            logWithToken(); // async
             modifyCacheUserIsOnline(client.cache, { lastTime: null, userId });
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,7 +81,9 @@ export const NavBar: React.FC = () => {
     useMySubscriptions(userId, client);
     
     if (loading || lodingLogout) return <div>me fetching ...</div>;
-    if (errorLogWithValidToken) return <div>error log with old token</div>;
+    if (errorLogWithValidToken) return (
+        <div>`error log with old token: ${errorLogWithValidToken!.message}`</div>
+    );
     if (errorLogout) return <div>error logout</div>;
 
     return (
