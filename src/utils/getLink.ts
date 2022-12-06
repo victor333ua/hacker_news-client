@@ -32,8 +32,13 @@ export const getLink = (ctx?: NextPageContext) => {
         }
     });
 
+    let protocol = 'http'; let wsProtocol = 'ws';
+    if (process.env.NEXT_PUBLIC_SECURE === 'yes') {
+        protocol = 'https'; wsProtocol = 'wss';
+    }
+
     const link = createHttpLink({
-        uri: `http${process.env.NEXT_PUBLIC_API_URL}graphql`,
+        uri: `${protocol}${process.env.NEXT_PUBLIC_API_URL}graphql`,
         // headers: {
         //     authorization: auth  
         // },
@@ -47,7 +52,7 @@ export const getLink = (ctx?: NextPageContext) => {
     if (isServer()) return httpLink;
 
     const wsLink = new WebSocketLink({
-        url: `ws${process.env.NEXT_PUBLIC_API_URL}ws`,
+        url: `${wsProtocol}${process.env.NEXT_PUBLIC_API_URL}ws`,
         // lazyCloseTimeout: 50000,
         // retryAttempts: Infinity,
         lazy: true, // make the client does not connect immediately
