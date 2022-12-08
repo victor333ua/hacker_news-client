@@ -161,7 +161,7 @@ const CreatePost: NextPage = () => {
                  mt='5px'
              >
                  <Box  fontSize='md' fontWeight='semibold' mr={10} ml={3}>
-                     Supplement the publication
+                     Add to the publication
                  </Box>
                  <IconButton
                      aria-label='addImage'

@@ -1,11 +1,11 @@
-import AllPosts from '../components/allPosts';
-import { Layout } from '../components/layout';
-import { NavBar } from '../components/navBar';
+import AllPosts from './../components/allPosts';
+import { Layout } from './../components/layout';
+import { NavBar } from './../components/navBar';
 import { NextPage, NextPageContext } from 'next';
-import { getServerSideApolloState } from '../utils/getServerSideApolloState'
-import withApollo from '../apolloClient';
+import { getServerSideApolloState } from './../utils/getServerSideApolloState'
+import withApollo from './../apolloClient';
 import React from 'react';
-import Oauth2Login from '../components/oauth2Login';
+import Oauth2Login from './../components/oauth2Login';
 
 export async function getServerSideProps(ctx: NextPageContext) {
 

@@ -4,10 +4,10 @@ import { Form, Formik } from 'formik';
 import router from 'next/router';
 import React from 'react'
 import { InputField } from './inputField';
-import {useSignupMutation } from '../generated/graphql';
+import {useSignupMutation } from './../generated/graphql';
 import * as Yup from 'yup';
 import { useApolloClient } from '@apollo/client';
-import { afterLogin } from '../utils/afterLogin';
+import { afterLogin } from './../utils/afterLogin';
 
 export const RegisterForm = () => {
     const client = useApolloClient();
