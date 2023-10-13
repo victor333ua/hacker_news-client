@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { MyIconButton } from './myIconButton';
 import { MdDeleteOutline, MdOpenInFull, MdThumbDownOffAlt, MdThumbUpOffAlt } from 'react-icons/md';
 import { useDeletePostMutation, useVoteMutation } from './../generated/graphql';
-import { modifyCacheDeletePost, modifyCacheVotePost, modifyCacheVotePostByUser } from '../utils/cache';
+import { modifyCacheDeletePost, modifyCacheVotePost } from '../utils/cache';
 import { ExtPost } from './extPost';
 import { getDeltaVoteValue } from './../utils/getDeltaVoteValue';
 

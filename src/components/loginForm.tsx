@@ -35,10 +35,15 @@ export const LoginForm = () => {
                     router.push('/');
                 } else if (errors){
                     const err = errors[0].message;
-                    if (typeof err === 'string')
-                        setErrors({ email: err });
-                    else 
-                        setErrors(JSON.parse(err));
+                    if (err) {
+                        try {
+                            const msg = JSON.parse(err);
+                            setErrors(msg);
+                        } catch(error: any) {
+                            setErrors({ email: err });
+                        }
+                    }
+
                 }                    
             }}
         >
