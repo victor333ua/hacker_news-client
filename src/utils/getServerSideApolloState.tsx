@@ -2,6 +2,7 @@ import { createApolloClient } from '../apolloClient';
 import { getDataFromTree } from '@apollo/client/react/ssr';
 import initializeApollo from './initApollo';
 import { NextPage, NextPageContext } from 'next';
+import React from 'react';
 
 export const getServerSideApolloState = 
     async (ctx: NextPageContext, Page: NextPage) => {

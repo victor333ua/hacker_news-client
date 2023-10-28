@@ -1,27 +1,37 @@
 import { useApolloClient } from "@apollo/client";
-import { Box, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Flex, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useColorModeValue, useDisclosure } from "@chakra-ui/react";
 import { useRouter } from 'next/router';
-import React from "react";
+import React, {useEffect } from "react";
 import { afterLogin } from "../utils/afterLogin";
 import { isServer } from "../utils/isServer";
 
-const Oauth2Login: React.FC = () => {
+const Oauth2LoginComponent: React.FC = () => {
+  const bg = useColorModeValue('gray.70', 'gray.600');
+  const color = useColorModeValue('black', 'white');
+
     const client = useApolloClient();
     const router = useRouter();
     const { onClose } = useDisclosure();
+
+    useEffect(() => {
+      if (!router.isReady) return;
+    }, [router?.isReady]);
+
+    if (!router?.query) return null;
+    const { token, error } = router.query;
     
-    if (isServer() || !router.isReady) return null;
+    if (isServer()) return null;
     
-    const { error, token } = router.query;
     if (token) {
       afterLogin(client, { token: token as string, user: undefined });
+      router.push('/');
     }
     if (error) {
         return (
           <Box>
             <Modal isOpen={true} onClose={onClose}>
               <ModalOverlay />
-              <ModalContent>
+              <ModalContent bg={bg} color={color}>
                 <ModalHeader>Authorization Error</ModalHeader>
                 {/* <ModalCloseButton /> */}
                 <ModalBody>
@@ -38,9 +48,9 @@ const Oauth2Login: React.FC = () => {
                 </ModalFooter>
               </ModalContent>
             </Modal>
-          </Box>    
+          </Box>
         );
     }
     return null;
 };
-export default Oauth2Login
+export default Oauth2LoginComponent

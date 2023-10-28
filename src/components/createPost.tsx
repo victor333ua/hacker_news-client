@@ -1,20 +1,25 @@
-import { Box, Button, Container, Flex, IconButton, Textarea, useDisclosure, Image } from '@chakra-ui/react';
-import { useRouter } from "next/router";
+import { Box, Button, Container, Flex, IconButton, Textarea, useDisclosure, Image, useColorModeValue } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
 import { modifyCacheAddPost } from '../utils/cache';
-import { useCreatePostMutation, useImgurQuery } from './../generated/graphql';
-import { useIsAuth } from './../utils/useIsAuth';
-import withApollo from '../apolloClient';
-import { NextPage } from 'next';
+import { useCreatePostMutation, useImgurQuery } from '../generated/graphql';
+import { useIsAuth } from '../utils/useIsAuth';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 import { FcAddImage, FcStart }  from 'react-icons/fc';
-import { SelectFileDragNDrop } from '../components/selectFileDragNDrop';
-import { SelectMusic } from '../components/selectMusic';
+import { SelectFileDragNDrop } from './selectFileDragNDrop';
+import { SelectMusic } from './selectMusic';
 import { uploadImage } from '../services/imageService';
-import { SelectMapPlace } from '../components/selectMapPlace';
+import { SelectMapPlace } from './selectMapPlace';
+import { Menu } from '../pages';
 
-const CreatePost: NextPage = () => {
-    const router = useRouter();
+interface Props {
+    setItem:  React.Dispatch<React.SetStateAction<Menu>>
+};
+
+const CreatePost: React.FC<Props> = ({ setItem }) => {
+    const bg = useColorModeValue('gray.50', 'gray.700')
+    const color = useColorModeValue('black', 'white')
+
+    const onComponentClose = () => setItem(Menu.Posts);
 
 // get Imgur Data from my server
     const { data: imgurData, loading: imgurLoading, error: imgurError } = useImgurQuery();
@@ -63,15 +68,15 @@ const CreatePost: NextPage = () => {
             setImgurError('error creating new post');
         }
         else if (data) 
-            router.push("/");
+           onComponentClose();
     };
 
     return (
-        <Container h='100vh' display='flex' justifyContent='center' flexDir='column'>
         <Container
             maxW="xl" 
             border='2px solid blue' p={5} borderRadius='md' 
-            bgColor='white' 
+            bgColor={bg} 
+            color={color}
         >
 {/*---------------------------------------------------------------------------*/}
 {/*------------------------------ header------------------------------------- */}
@@ -85,7 +90,7 @@ const CreatePost: NextPage = () => {
                     aria-label='close' 
                     variant='outline'
                     icon={<AiOutlineCloseCircle size='40'/>} 
-                    onClick={() => router.push('/')} 
+                    onClick={ onComponentClose } 
                 />
             </Flex> 
             <Box 
@@ -118,7 +123,7 @@ const CreatePost: NextPage = () => {
                         aria-label='close' 
                         variant='outline'
                         icon={<AiOutlineCloseCircle size='30' />}
-                        backgroundColor='white' 
+                        bg={bg} 
                         onClick={() => setPhoto(false)}
                     /> 
                 </Box>
@@ -194,7 +199,6 @@ const CreatePost: NextPage = () => {
                  create post        
             </Button>              
         </Container>
-        </Container>
     );     
 };
-export default withApollo(CreatePost);
+export default CreatePost;

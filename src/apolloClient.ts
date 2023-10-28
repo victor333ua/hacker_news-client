@@ -3,7 +3,7 @@ import { LinksPayload } from "./generated/graphql";
 import { getLink } from "./utils/getLink";
 import { isServer } from "./utils/isServer";
 import { ApolloClientParam } from './types';
-import { getWithApollo } from './utils/withApollo'
+import { setApolloClient } from './utils/setApolloClient'
 
 export const createApolloClient: ApolloClientParam =  ctx => {
         
@@ -34,4 +34,6 @@ export const createApolloClient: ApolloClientParam =  ctx => {
         connectToDevTools: true
     });     
 };
-export default getWithApollo(createApolloClient);
+// return fn(<Page />): <Page { apolloState, ctx, ssr , ... }/> with client in react context
+// named as withApollo, props will get from getServerSideProps
+export default setApolloClient(createApolloClient);

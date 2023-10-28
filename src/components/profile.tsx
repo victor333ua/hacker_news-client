@@ -14,6 +14,7 @@ import {
     Image,
     Container,
     Box,
+    useColorModeValue,
   } from '@chakra-ui/react';
 import { useMeQuery } from "../generated/graphql";
 import { useImgurQuery } from '../generated/graphql';
@@ -28,6 +29,8 @@ type InputProps = {
 };
 
 export const Profile: FC<InputProps> = ({setProfileVisible}: InputProps) => {
+  const bg = useColorModeValue('gray.50', 'gray.700')
+  const color = useColorModeValue('black', 'white')
 
   const { onClose } = useDisclosure();
   const onCloseModal = () => {
@@ -46,7 +49,8 @@ export const Profile: FC<InputProps> = ({setProfileVisible}: InputProps) => {
   const [errorAvatar, setErrorAvatar] = useState('');
 
   const { data } = useMeQuery();
-  const imageLink = data?.me.imageLink;
+ 
+  const imageLink = data?.me?.imageLink;
   useEffect(() => {
     if (imageLink) setFileSrc(imageLink);
   },[imageLink])
@@ -64,14 +68,14 @@ export const Profile: FC<InputProps> = ({setProfileVisible}: InputProps) => {
 
     try {
       if (imageLink) await deleteImage(
-        { link: imageLink, deletehash: data.me.deletehash as string },
+        { link: imageLink, deletehash: data!.me!.deletehash as string },
         imgurData.imgur
       ); 
       const { link, deletehash } = 
         await uploadImage(refToSelectedFile.current as File, imgurData.imgur);
 
       const res = modifyCacheChangeAvatar({
-          cache: client.cache, userId: data!.me.id, link, deletehash
+          cache: client.cache, userId: data!.me!.id, link, deletehash
         });
       if (!res) throw new Error('error modifying cache');
 
@@ -91,7 +95,7 @@ export const Profile: FC<InputProps> = ({setProfileVisible}: InputProps) => {
     <>
       <Modal isOpen={true} onClose={onCloseModal}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bgColor={bg} color={color}>
           <ModalHeader fontSize='2xl' fontWeight='bold'>Edit Profile</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -102,7 +106,7 @@ export const Profile: FC<InputProps> = ({setProfileVisible}: InputProps) => {
                     </Text>
                     <Button 
                         variant='link' _focus={{}}  
-                        color='blue' fontStyle='italic' bg='white'
+                        color={color} fontStyle='italic' bg={bg}
                         onClick={() => hiddenInputRef.current?.click()}
                     >
                         Change

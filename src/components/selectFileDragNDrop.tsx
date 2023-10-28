@@ -42,6 +42,7 @@ export const SelectFileDragNDrop = ({ refToFile }: InputProps) => {
                 border='1px solid black'
                 borderRadius='md'
                 backgroundColor='gray.300'
+                color='black'
                 display='flex'
                 flexDir='column'
                 justifyContent='center'

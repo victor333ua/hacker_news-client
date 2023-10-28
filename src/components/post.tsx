@@ -1,4 +1,4 @@
-import { useColorMode } from '@chakra-ui/system';
+import { useColorModeValue } from '@chakra-ui/system';
 import React from 'react'
 import { MeQuery, PostVotesFragment } from '../generated/graphql';
 import { Box, Divider, Flex, Text, useDisclosure } from '@chakra-ui/react';
@@ -10,16 +10,15 @@ import { modifyCacheDeletePost, modifyCacheVotePost } from '../utils/cache';
 import { ExtPost } from './extPost';
 import { getDeltaVoteValue } from './../utils/getDeltaVoteValue';
 
-const bgColor = { light: 'gray.50', dark: 'gray.900' }
-const color = { light: 'black', dark: 'white' }
-
 interface postProps {
     post: PostVotesFragment,
     data: MeQuery | undefined
 };
 
 export const Post: React.FC<postProps> = ({ post, data }) => {
-    const { colorMode } = useColorMode();
+    const bg = useColorModeValue('gray.200', 'gray.700');
+    const color = useColorModeValue('black', 'white');
+    const iconsBg = useColorModeValue('gray.100', 'gray.200');
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -73,14 +72,15 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
     if (isOpen) return <ExtPost post={post} onClose={onClose} />
 
     return (
-        <Box 
-          p={5}
-          shadow="md"
-          borderWidth="1px"
-          flex="1"
-          borderRadius="md"
-          bg={bgColor[colorMode]}
-          color={color[colorMode]}
+        <Box
+            w='lg' 
+            p={5}
+            shadow="md"
+            borderWidth="1px"
+            flex="1"
+            borderRadius="md"
+            bg={bg}
+            color={color}
         >
             <Text fontSize="sm" as="i">
                 postedBy <b>{name}</b>  &nbsp; &nbsp;{date}
@@ -92,9 +92,11 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
                 <Box ml="2" mt="1" width="2" height="2" borderRadius="50%" bgColor={colorIsOnline} border={`1px solid ${colorIsOnline}`}/>               
             </Flex>
             <Text mt={4}>{post.description}</Text>
-            <Divider my={2} borderColor="gray.700" />
+            <Divider my={2} borderColor={bg} />
             <Flex >
                 <MyIconButton
+                    bg={iconsBg}
+                    color='black'
                     name='extPost'  
                     icon={<MdOpenInFull />}
                     mr="auto"
@@ -104,11 +106,12 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
                 />
                 <Flex flexDirection="column" textAlign="center" >             
                     <MyIconButton
+                        bg={iconsBg}
                         name='down'  
                         icon={<MdThumbDownOffAlt />}
                         mr="3"
                         size="xs"
-                        color={post.voteValue === -1 ? "blue.500" : undefined}
+                        color={post.voteValue === -1 ? "blue.500" : "black"}
                         onClick={() => onVote(-1)}
                         isDisabled={!isLogged}        
                     />
@@ -116,17 +119,20 @@ export const Post: React.FC<postProps> = ({ post, data }) => {
                 </Flex>
                 <Flex flexDirection="column" textAlign="center" >          
                     <MyIconButton
+                        bg={iconsBg}
                         name='up'  
                         icon={<MdThumbUpOffAlt />}
                         mr="3"
                         size="xs"
-                        color={post.voteValue === 1 ? "blue.600" : undefined}
+                        color={post.voteValue === 1 ? "blue.600" : "black"}
                         onClick={()=> onVote(1)} 
                         isDisabled={!isLogged}                     
                     />
                     <Text fontSize="sm" as="i"  mr={3} >{post.votesUp}</Text> 
                 </Flex>    
                 {isMyPost && <MyIconButton
+                    bg={iconsBg}
+                    color='black'
                     name='delete'
                     icon={<MdDeleteOutline/>}                       
                     mr="2"

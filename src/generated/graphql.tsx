@@ -206,7 +206,7 @@ export type CreatePostMutationVariables = Exact<{
 }>;
 
 
-export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined } } };
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Link', votesUp: number, votesDown: number, voteValue: number, id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined } } };
 
 export type DeletePostMutationVariables = Exact<{
   postId: Scalars['Int'];
@@ -275,7 +275,7 @@ export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: nu
 export type PostCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined } } } };
+export type PostCreatedSubscription = { __typename?: 'Subscription', postCreated: { __typename?: 'PostCreatedPayload', newPost: { __typename?: 'Link', votesUp: number, votesDown: number, voteValue: number, id: number, description: string, imageLink?: string | null | undefined, deleteHash?: string | null | undefined, musicUrl?: string | null | undefined, createdAt: string, lng?: number | null | undefined, lat?: number | null | undefined, postedBy: { __typename?: 'User', id: number, email: string, name?: string | null | undefined, imageLink?: string | null | undefined, deletehash?: string | null | undefined, lastTime?: string | null | undefined } } } };
 
 export type PostDeletedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -377,10 +377,10 @@ export const CreatePostDocument = gql`
     lat: $lat
     lng: $lng
   ) {
-    ...PostBasic
+    ...PostVotes
   }
 }
-    ${PostBasicFragmentDoc}`;
+    ${PostVotesFragmentDoc}`;
 export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, CreatePostMutationVariables>;
 
 /**
@@ -760,11 +760,11 @@ export const PostCreatedDocument = gql`
     subscription PostCreated {
   postCreated {
     newPost {
-      ...PostBasic
+      ...PostVotes
     }
   }
 }
-    ${PostBasicFragmentDoc}`;
+    ${PostVotesFragmentDoc}`;
 
 /**
  * __usePostCreatedSubscription__

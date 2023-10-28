@@ -11,7 +11,8 @@ import {
     Container,
     Box,
     Image,
-    Flex
+    Flex,
+    useColorModeValue
   } from '@chakra-ui/react';
 import { PostVotesFragment } from "../generated/graphql";
 import { GoogleMapBase } from "./googleMapBase";
@@ -24,6 +25,9 @@ type InputProps = {
 };
 
 export const ExtPost: FC<InputProps> = ({ onClose, post }) => {
+  const bg = useColorModeValue('gray.50', 'gray.600');
+  const color = useColorModeValue('black', 'white');
+
   const musicUrl = post.musicUrl ;
   const imageSrc = post.imageLink ?? undefined;
   const avatarSrc = post.postedBy.imageLink ?? undefined;
@@ -34,7 +38,7 @@ export const ExtPost: FC<InputProps> = ({ onClose, post }) => {
   return (
       <Modal isOpen onClose={onClose} >
         <ModalOverlay />
-        <ModalContent maxW='2xl'>
+        <ModalContent maxW='2xl' bg={bg} color={color}>
           <ModalHeader>
             <Flex alignItems='center'>
               <Image  m={3} boxSize='3rem' src={avatarSrc}
@@ -53,7 +57,7 @@ export const ExtPost: FC<InputProps> = ({ onClose, post }) => {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-              <Container w='xl'>
+              <Container w='xl' >
                 <Text fontWeight='normal' fontSize='md' w='100%' mb='10px'>
                   {post.description}
                 </Text>

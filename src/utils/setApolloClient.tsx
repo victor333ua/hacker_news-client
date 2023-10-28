@@ -4,35 +4,18 @@ import { useEffect, useRef } from 'react';
 import { ApolloClientParam } from '../types';
 import initializeApollo from './initApollo';
 import { isServer } from './isServer';
+import { ssrPageProps } from '../pages/_app'
 
-export const getWithApollo = (acp: ApolloClientParam) => {
+export const setApolloClient = (acp: ApolloClientParam) => {
     return (PageComponent: NextPage) => {
 
-        const WithApollo: NextPage<any> = ({apolloState, ssr=false, ...rest}) => {
+        const Fn: NextPage<ssrPageProps> = 
+            ({ apolloState, ssr=false, ...rest }) => {
         // apolloState from getServerSideProps, if exist
 
         // when apolloState changed force react to remount PageComponent
         const stateRef = useRef(0);
         useEffect(() => {stateRef.current++});
-
-        // console.log(`render withApollo ${stateRef.current}`);
-            
-            // const stateRef = useRef(apolloState);
-            // const [x, forceUpdate] = useState(0); 
-            // useEffect(()=> {
-            //     stateRef.current = {}; 
-            //     console.log('empty');
-            // },[x]);
-
-            // useEffect(() => {
-            //     return () => {
-            //         stateRef.current = apolloState;
-            //         console.log('state');
-            //         forceUpdate(x => x + 1);
-            //     }
-            // },[apolloState]);
-
-            // console.log('render');
 
         // on client side create new client if not exist or use existing
         // & add this state to client's cache 
@@ -40,15 +23,16 @@ export const getWithApollo = (acp: ApolloClientParam) => {
         // if getServerSideProps exists ssr=true & we use existing client
             let client; 
 
-            if(isServer()) {               
+            if(isServer())
+        // ctx is not neccessary here, 'cause apolloState has been populated already                
                client = initializeApollo({
                     acp, ctx: undefined, state: undefined, isNew: !ssr 
                });
-            } else
+            else
+        // ctx doesn't exist on client's side, link'll be overrided after login
                 client = initializeApollo({
                     acp, ctx: undefined, state: apolloState, isNew: false  
                 });
-
             return (
                 <ApolloProvider client={client}>
                     <PageComponent key={stateRef.current} {...rest} />   
@@ -56,6 +40,6 @@ export const getWithApollo = (acp: ApolloClientParam) => {
             )
         };
 
-        return WithApollo;
+        return Fn;
     }
 };

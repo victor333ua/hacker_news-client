@@ -1,5 +1,5 @@
 import { ApolloCache, gql } from '@apollo/client';
-import { PostBasicFragment, PostBasicFragmentDoc } from '../generated/graphql';
+import { PostVotesFragment, PostVotesFragmentDoc } from '../generated/graphql';
 import { MeDocument, MeQuery, User } from "../generated/graphql";
 
 export const modifyCacheSetUser =
@@ -63,16 +63,17 @@ export const modifyCacheVotePost =
 
 export const modifyCacheAddPost = 
     (cache: ApolloCache<Object>,
-     newPost: PostBasicFragment | undefined) => {
+     newPost: PostVotesFragment | undefined) => {
 
     if (!newPost) return;
     cache.modify({
+        id: 'ROOT_QUERY',
         fields: {
             feed(cached = { posts: [], hasMore: false }) {
                 const newPostRef = cache.writeFragment({
                     data: newPost,
-                    fragment: PostBasicFragmentDoc,
-                    fragmentName: 'PostBasic'
+                    fragment: PostVotesFragmentDoc,
+                    fragmentName: 'PostVotes'
                 });
                 return ({
                     posts: [newPostRef, ...cached.posts],

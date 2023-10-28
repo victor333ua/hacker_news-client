@@ -3,6 +3,11 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
+    "tasks": [
+        {
+            "command": "echo ${workspaceFolder}"
+        }
+    ],
     "configurations": [
         {
             "name": "Next.js: debug server-side",
@@ -11,13 +16,14 @@
             "skipFiles": [
                 "<node:internals>/**"
             ],
-            // "outFiles": [
-            //     "${workspaceFolder}/.next/server/**/*.js"
+            "sourceMaps": true,
+            // "outFiles": [ 
+            //     "${workspaceFolder:client}/.next/server/**/*.js"
             // ],
             "port": 9229
         },
         {
-            "type": "pwa-chrome",
+            "type": "chrome",
             "request": "launch",
             "name": "Next.js: debug client-side",
             "url": "http://localhost:3000",

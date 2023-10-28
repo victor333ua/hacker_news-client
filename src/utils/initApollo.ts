@@ -21,8 +21,8 @@ const initializeApollo = ({ acp, ctx, state, isNew }: initializeApolloParam ) =>
 
 // If cache already has data from previous pages or
 // loaded during client side data fetching, the initial state,
-// received from server for current page, is being added to existing cache
-// on server side during rendering page we already have client with state
+// received from server for current page, is being added to existing cache.
+// On server side during rendering page we already have apolloState
 // after perfoming getDataFromTree
     if (state && !isServer()) {
         // Get existing cache, 

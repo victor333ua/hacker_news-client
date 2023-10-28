@@ -13,6 +13,7 @@ import {
     Link,
     HStack,
     Text,
+    useColorModeValue,
   } from '@chakra-ui/react'
 import React, { FC } from 'react'
 
@@ -22,8 +23,12 @@ type InputProps = {
   };
   
 export const SelectMusic: FC<InputProps> = ({ onClose, setMusicUrl }) => {
+    const bg = useColorModeValue('gray.50', 'gray.500');
+    const color = useColorModeValue('black', 'white');
+    
     const [value, setValue] = React.useState('');
     const handleChange = (event) => setValue(event.target.value);
+
     const onClick = () => {
         let url = value;
 // modify url for youtube music
@@ -73,7 +78,7 @@ export const SelectMusic: FC<InputProps> = ({ onClose, setMusicUrl }) => {
     return (
         <Modal isOpen onClose={onClose}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent  bg={bg} color={color}>
                 <ModalHeader>Select your favourite song</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>

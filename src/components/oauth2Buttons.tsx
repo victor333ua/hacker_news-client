@@ -36,12 +36,14 @@ import { FaGithub, FaGoogle } from 'react-icons/fa';
         </Container> 
 
         <Flex justifyContent='space-between'>
-            <Button bg='black' color='white' leftIcon={<FaGithub />} 
+            <Button bg='black' color='white' _hover={{ bg: "<color>" }} 
+                leftIcon={<FaGithub />} 
                 onClick={ e => { e.preventDefault(); gitHubLogin() }}
             >
                 Github
             </Button>
-            <Button bg='#df4930' color='white' leftIcon={<FaGoogle />} 
+            <Button bg='#df4930' color='white'  _hover={{ bg: "<color>" }}
+                leftIcon={<FaGoogle />} 
                 onClick={ e => { e.preventDefault(); googleLogin() }}
             >
                 Google
