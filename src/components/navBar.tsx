@@ -38,9 +38,7 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
 
                 cache.evict({ fieldName: 'me' });
                 cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
-                cache.gc();
-                
-                router.replace('/');// re-mount component in withApollo
+                cache.gc();               
 
                 // don't work - current allPosts page don't updated, 'cause
                 // MeQuery do not renew data in the page
@@ -162,8 +160,9 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             bg={iconsBg}
                             name='logout'
                             icon={<MdLogout />}                                                              
-                            onClick={async () => {
+                            onClick={async () => { 
                                 await logout();
+                                router.replace('/');// re-mount component
                             }}
                         /> </>)      
                     :  
@@ -171,7 +170,7 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             bg={iconsBg}
                             name='login'  
                             icon={<MdLogin />}
-                            onClick={async () => await router.push('/login')} 
+                            onClick={() => router.push('/login')} 
                         />                   
                     }    
                 </Flex>            

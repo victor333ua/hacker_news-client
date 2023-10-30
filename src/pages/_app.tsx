@@ -42,7 +42,6 @@ function MyApp({ Component, pageProps }: appType) {
       acp: createApolloClient, ctx: undefined, state: apolloState, isNew: false  
     });
 
-
   return (
     <ChakraProvider resetCSS theme={theme}>
       <ColorModeProvider
@@ -50,7 +49,7 @@ function MyApp({ Component, pageProps }: appType) {
           useSystemColorMode: true,
         }}
       > 
-        <ApolloProvider client={client}>   
+        <ApolloProvider client={client}> 
           <Component key={isHomePage ? stateRef.current : 1} {...rest} /> 
         </ApolloProvider>    
       </ColorModeProvider>
