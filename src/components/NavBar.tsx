@@ -24,11 +24,11 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
 
     const { data, loading } = useMeQuery();
 
-    const [logout,  { error: errorLogout, loading: lodingLogout }] =
+    const [logout,  { error: errorLogout, loading: loadingLogout }] =
         useLogoutMutation({ 
             errorPolicy: 'all',
-            update: (cache, { data }) => {
-                if (!data?.logout) return; 
+            update: (cache, { data: dataLogout }) => {
+                if (!dataLogout?.logout) return; 
 
                 localStorage.removeItem('token');
                 document.cookie = "token=; expires = Thu, 01 Jan 1970 00:00:00 GMT; path=/;";                
@@ -77,24 +77,24 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
     // });
 
 
-    useEffect(() => {
-        window.onbeforeunload = (e: BeforeUnloadEvent) => {
-            if (isLogged) logout();
-            // e.preventDefault();
-        };
-        return () => {
-            window.onbeforeunload = null;
-        }
-        // if (isLogged) {
-        //     console.log('addListener');
-        //     const fn = cb.current;
-        //     document.addEventListener('visibilitychange', fn);
-        //     return () => {
-        //         // alert('removeListener');
-        //         document.removeEventListener('visibilitychange', fn);
-        //     }
-        // }
-    },[isLogged, logout]);
+    // useEffect(() => {
+    //     window.onbeforeunload = (e: BeforeUnloadEvent) => {
+    //         if (isLogged) logout();
+    //         // e.preventDefault();
+    //     };
+    //     return () => {
+    //         window.onbeforeunload = null;
+    //     }
+    //     // if (isLogged) {
+    //     //     console.log('addListener');
+    //     //     const fn = cb.current;
+    //     //     document.addEventListener('visibilitychange', fn);
+    //     //     return () => {
+    //     //         // alert('removeListener');
+    //     //         document.removeEventListener('visibilitychange', fn);
+    //     //     }
+    //     // }
+    // },[isLogged, logout]);
     
 //     useEffect(() => {
 // // token was valid & we connected w/o login => 
@@ -109,11 +109,9 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
 // subscribe/unsubscr when auth has changed 
     useMySubscriptions(userId, client);
     
-        if (loading || lodingLogout) return <div>me fetching ...</div>;
         // if (errorLogWithValidToken) return (
         //     <div>`error log with old token: ${errorLogWithValidToken!.message}`</div>
         // );
-        if (errorLogout) return <div>error logout</div>;
 
     return (
         <>
@@ -127,21 +125,25 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                 bg={bg} 
             >
                 <Flex alignItems="center" justifyContent='space-between'>
+
                     <MyIconButton
                       bg={iconsBg}
                       name='all posts'  
                       icon={<MdHome />}
                       onClick={() => setItem(Menu.Posts)}
-                    />                                       
-                    {isLogged  
+                    /> 
+                    { loading && 'Fetching...' }
+                    { isLogged  
                     ? (<>                          
                         <MyIconButton
                             bg={iconsBg}
                             name='createPost'  
                             icon={<MdEditCalendar />}
-                            ml='25px'
+                            mx='25px'
                             onClick={() => setItem(Menu.NewPost)}
-                        />          
+                        />  
+                        { loadingLogout && 'Fetching...' }
+                        { errorLogout && 'error logout' }        
                         <Box  
                             ml="auto"
                             mr={6} 
@@ -162,7 +164,8 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             icon={<MdLogout />}                                                              
                             onClick={async () => { 
                                 await logout();
-                                router.replace('/');// re-mount component
+                                // router.replace('/');// re-mount component
+                                router.reload();
                             }}
                         /> </>)      
                     :  
