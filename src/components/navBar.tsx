@@ -162,8 +162,8 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             bg={iconsBg}
                             name='logout'
                             icon={<MdLogout />}                                                              
-                            onClick={() => {
-                                logout();
+                            onClick={async () => {
+                                await logout();
                             }}
                         /> </>)      
                     :  
@@ -171,7 +171,7 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             bg={iconsBg}
                             name='login'  
                             icon={<MdLogin />}
-                            onClick={() => router.push('/login')} 
+                            onClick={async () => await router.push('/login')} 
                         />                   
                     }    
                 </Flex>            
