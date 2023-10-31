@@ -31,7 +31,6 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
             errorPolicy: 'all',
             // update: (cache, { data: dataLogout }) => {
             //     cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
-            //     cache.gc(); 
             // }
         });
 
@@ -42,8 +41,10 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
         document.cookie = "token=; expires = Thu, 01 Jan 1970 00:00:00 GMT; path=/;";                
         changeAuth(client);  // change auth in request headers
         client.cache.evict({ fieldName: 'me' });
-    }, [client, dataLogout])
- 
+        router.replace('/');
+    }, [client, dataLogout, router])
+
+// will be the same during rerendering
     const isLogged = !!data?.me;
     const userId = data?.me?.id;
     const lastTime =  data?.me?.lastTime;
@@ -61,9 +62,9 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
     },[isLogged, logout]);
 
     const [logWithToken, { error: errorLogWithValidToken }] = 
-    useLogWithValidTokenMutation({
-        errorPolicy: 'all'
-    });
+        useLogWithValidTokenMutation({
+            errorPolicy: 'all'
+        });
 
     useEffect(() => {
 // token was valid & we connected w/o login => 
@@ -128,10 +129,9 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             bg={iconsBg}
                             name='logout'
                             icon={<MdLogout />}                                                              
-                            onClick={async () => { 
+                            onClick={() => { 
                                 refLogout.current = true;
-                                await logout();
-                                router.replace('/');
+                                logout();
                             }}
                         /> </>)      
                     :  
