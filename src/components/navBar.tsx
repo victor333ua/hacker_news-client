@@ -1,8 +1,8 @@
 import { useApolloClient } from "@apollo/client";
 import { Box, Flex, Image, useColorModeValue } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from 'react';
-import { MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
+import React, { useEffect, useRef, useState } from 'react';
+import { MdClose, MdEditCalendar, MdHome, MdLogin, MdLogout } from "react-icons/md";
 import { modifyCacheUserIsOnline } from "../utils/cache";
 import { changeAuth } from '../utils/changeAuth';
 import { useMySubscriptions } from "../subscriptions/useMySubscriptions";
@@ -22,96 +22,60 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
     const bg = useColorModeValue('gray.70', 'gray.600');
     const iconsBg = useColorModeValue('gray.100', 'gray.500');
 
+    const refLogout = useRef(false);
+
     const { data, loading } = useMeQuery();
 
-    const [logout,  { error: errorLogout, loading: loadingLogout }] =
+    const [logout,  { error: errorLogout, loading: loadingLogout, data: dataLogout }] =
         useLogoutMutation({ 
             errorPolicy: 'all',
-            update: (cache, { data: dataLogout }) => {
-                if (!dataLogout?.logout) return; 
-
-                localStorage.removeItem('token');
-                document.cookie = "token=; expires = Thu, 01 Jan 1970 00:00:00 GMT; path=/;";                
-                 
-                // change auth in request headers
-                changeAuth(client);
-
-                cache.evict({ fieldName: 'me' });
-                cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
-                cache.gc();               
-
-                // don't work - current allPosts page don't updated, 'cause
-                // MeQuery do not renew data in the page
-                // router.reload(); // ssr
-                // client.clearStore() 
-                //     .then(() => {
-                //         // router.push('/', undefined, { shallow: false });
-                //     }) 
-                // client.resetStore(); // refetch all queries  
-            }
+            // update: (cache, { data: dataLogout }) => {
+            //     cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
+            //     cache.gc(); 
+            // }
         });
- 
-    // const [logWithToken, { error: errorLogWithValidToken }] = 
-    //     useLogWithValidTokenMutation({
-    //         // in this case rerender will happen only after reply from the backend
-    //         // update: (cache, { data }) => {
-    //         //     if (!data) return;
-    //         //     modifyCacheUserIsOnline(cache, { lastTime: null, userId });
-    //         // },
-    //         errorPolicy: 'all'
-    //     });
 
+    useEffect(() => {
+        if (!(dataLogout?.logout && refLogout.current)) return; 
+        console.log('update after logout');
+        localStorage.removeItem('token');
+        document.cookie = "token=; expires = Thu, 01 Jan 1970 00:00:00 GMT; path=/;";                
+        changeAuth(client);  // change auth in request headers
+        client.cache.evict({ fieldName: 'me' });
+    }, [client, dataLogout])
+ 
     const isLogged = !!data?.me;
     const userId = data?.me?.id;
-    // const lastTime = data?.me?.lastTime;
+    const lastTime =  data?.me?.lastTime;
 
-    // const out = (e: Event) => {
-    //     if (document.visibilityState == 'hidden') {
-    //         console.log('handler');
-    //         logout();
-    //     }
-    // };
-    // const cb = useRef(out);
-    // useEffect(() => {
-    //     cb.current = out;
-    // });
+    useEffect(() => {
+        window.onbeforeunload = async (e: BeforeUnloadEvent) => {
+            console.log('beforeunload');
+            refLogout.current = false;
+            if (isLogged) await logout();
+            e.preventDefault();
+        };
+        return () => {
+            window.onbeforeunload = null;
+        }
+    },[isLogged, logout]);
 
+    const [logWithToken, { error: errorLogWithValidToken }] = 
+    useLogWithValidTokenMutation({
+        errorPolicy: 'all'
+    });
 
-    // useEffect(() => {
-    //     window.onbeforeunload = (e: BeforeUnloadEvent) => {
-    //         if (isLogged) logout();
-    //         // e.preventDefault();
-    //     };
-    //     return () => {
-    //         window.onbeforeunload = null;
-    //     }
-    //     // if (isLogged) {
-    //     //     console.log('addListener');
-    //     //     const fn = cb.current;
-    //     //     document.addEventListener('visibilitychange', fn);
-    //     //     return () => {
-    //     //         // alert('removeListener');
-    //     //         document.removeEventListener('visibilitychange', fn);
-    //     //     }
-    //     // }
-    // },[isLogged, logout]);
-    
-//     useEffect(() => {
-// // token was valid & we connected w/o login => 
-// // update db lastTime=null & publish 'user is online' 
-//         if (lastTime && isLogged) {
-//             logWithToken(); // async
-//             modifyCacheUserIsOnline(client.cache, { lastTime: null, userId });
-//         }
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//     }, [lastTime, isLogged]);
+    useEffect(() => {
+// token was valid & we connected w/o login => 
+// update db lastTime=null & publish 'user is online' 
+        if (lastTime && isLogged) {
+            logWithToken(); // async
+            modifyCacheUserIsOnline(client.cache, { lastTime: null, userId });
+        }
+    }, [isLogged, logWithToken, client.cache, userId, lastTime]);
     
 // subscribe/unsubscr when auth has changed 
     useMySubscriptions(userId, client);
-    
-        // if (errorLogWithValidToken) return (
-        //     <div>`error log with old token: ${errorLogWithValidToken!.message}`</div>
-        // );
 
     return (
         <>
@@ -143,7 +107,8 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             onClick={() => setItem(Menu.NewPost)}
                         />  
                         { loadingLogout && 'Fetching...' }
-                        { errorLogout && 'error logout' }        
+                        { errorLogout && 'error logout' } 
+                        { errorLogWithValidToken && `error log with old token: ${errorLogWithValidToken!.message}`}       
                         <Box  
                             ml="auto"
                             mr={6} 
@@ -159,23 +124,35 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
                             />
                         </Box>
                         <MyIconButton
+                            mr='10px' 
                             bg={iconsBg}
                             name='logout'
                             icon={<MdLogout />}                                                              
                             onClick={async () => { 
+                                refLogout.current = true;
                                 await logout();
-                                // router.replace('/');// re-mount component
-                                router.reload();
+                                router.replace('/');
                             }}
                         /> </>)      
                     :  
                         <MyIconButton
+                            ml="auto"
+                            mr='10px' 
                             bg={iconsBg}
                             name='login'  
                             icon={<MdLogin />}
                             onClick={() => router.push('/login')} 
                         />                   
-                    }    
+                    }
+                    {/* <MyIconButton
+                        bg={iconsBg}
+                        name='exit'  
+                        icon={<MdClose />}
+                        onClick={() => {
+                            window.open("", "_self");
+                            window.close();
+                        }} 
+                    />       */}
                 </Flex>            
             </Box>
         </>
