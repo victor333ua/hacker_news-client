@@ -42,6 +42,8 @@ function MyApp({ Component, pageProps }: appType) {
       acp: createApolloClient, ctx: undefined, state: apolloState, isNew: false  
     });
 
+    console.log('key= %d', stateRef.current);
+
   return (
     <ChakraProvider resetCSS theme={theme}>
       <ColorModeProvider
