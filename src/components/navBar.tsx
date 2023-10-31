@@ -42,7 +42,8 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
         changeAuth(client);  // change auth in request headers
         client.cache.evict({ fieldName: 'me' });
         router.replace('/');
-    }, [client, dataLogout, router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dataLogout])
 
 // will be the same during rerendering
     const isLogged = !!data?.me;
