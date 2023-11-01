@@ -14,6 +14,11 @@ export async function getServerSideProps(ctx: NextPageContext): Promise<{ props:
   const indexProps = {}; // you could add some data here  
 
   const { apolloState } = await getServerSideApolloState(ctx, Index); 
+
+  ctx.res?.setHeader(
+    'Cache-Control',
+    'no-cache, no-store, max-age=0, must-revalidate'
+  )
   
   return {
       props: { ...indexProps, apolloState, ssr: true }

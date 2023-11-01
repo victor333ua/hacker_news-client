@@ -40,9 +40,7 @@ function MyApp({ Component, pageProps }: appType) {
     });
 
     key = Math.floor(Math.random() * 100);
-  //   const data = client.readQuery({
-  //     query: MeDocument
-  //  });
+  //   const data = client.readQuery({ query: MeDocument });
   //   console.log('key= ', data?.me?.id);
   }
   return (
