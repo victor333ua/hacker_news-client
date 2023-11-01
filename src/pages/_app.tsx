@@ -39,9 +39,11 @@ function MyApp({ Component, pageProps }: appType) {
       acp: createApolloClient, ctx: undefined, state: apolloState, isNew: false  
     });
 
-    key = Math.floor(Math.random() * 100);
+  // key = Math.floor(Math.random() * 100);
+  // console.log('key= ', key);
   //   const data = client.readQuery({ query: MeDocument });
   //   console.log('key= ', data?.me?.id);
+  // key={isHomePage ? key : 1}
   }
   return (
     <ChakraProvider resetCSS theme={theme}>
@@ -51,7 +53,7 @@ function MyApp({ Component, pageProps }: appType) {
         }}
       > 
         <ApolloProvider client={client}> 
-          <Component key={isHomePage ? key : 1} {...rest} /> 
+          <Component {...rest} /> 
         </ApolloProvider>    
       </ColorModeProvider>
     </ChakraProvider>

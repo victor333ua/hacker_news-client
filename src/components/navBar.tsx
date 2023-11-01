@@ -41,7 +41,7 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
         changeAuth(client);  // change auth in request headers
         client.cache.evict({ fieldName: 'me' });
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
-        router.replace('/');
+        router.reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataLogout])
 
