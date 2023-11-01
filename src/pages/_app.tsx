@@ -1,6 +1,6 @@
 import { ChakraProvider, ColorModeProvider } from '@chakra-ui/react'
 import theme from '../theme'
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import '../components/googleAutoComplete.css';
 import { ApolloProvider } from '@apollo/client';
 import { NormalizedCacheObject } from '@apollo/client';
@@ -8,7 +8,8 @@ import { NextPage } from 'next';
 import { createApolloClient } from '../apolloClient';
 import initializeApollo from '../utils/initApollo';
 import { isServer } from '../utils/isServer';
-import App, { AppContext } from 'next/app';
+// import App, { AppContext } from 'next/app';
+// import { MeDocument } from '../generated/graphql'
 
 export type ssrPageProps = {
     apolloState: NormalizedCacheObject | undefined,
@@ -25,26 +26,25 @@ function MyApp({ Component, pageProps }: appType) {
 
 // when apolloState changed force react to remount Index
   const isHomePage = Component.name === 'Index';
-  const stateRef = useRef(0);
-  useEffect(() => {
-    if (isHomePage) stateRef.current++;
-  });
-
-  let client; 
+  let client, key = 0;
 
   if(isServer())
 // ctx is not neccessary here, 'cause apolloState has been populated already                
     client = initializeApollo({
       acp: createApolloClient, ctx: undefined, state: undefined, isNew: !ssr 
     });
-  else
-// ctx doesn't exist on client's side, link'll be overrided after login
+  else {
+// ctx doesn't exist on client's side
     client = initializeApollo({
       acp: createApolloClient, ctx: undefined, state: apolloState, isNew: false  
     });
 
-    console.log('key= %d', stateRef.current);
-
+    key = Math.floor(Math.random() * 100);
+  //   const data = client.readQuery({
+  //     query: MeDocument
+  //  });
+  //   console.log('key= ', data?.me?.id);
+  }
   return (
     <ChakraProvider resetCSS theme={theme}>
       <ColorModeProvider
@@ -53,16 +53,20 @@ function MyApp({ Component, pageProps }: appType) {
         }}
       > 
         <ApolloProvider client={client}> 
-          <Component key={isHomePage ? stateRef.current : 1} {...rest} /> 
+          <Component key={isHomePage ? key : 1} {...rest} /> 
         </ApolloProvider>    
       </ColorModeProvider>
     </ChakraProvider>
   )
 };
-
-MyApp.getInitialProps = async (appContext: AppContext) => {
-  const appProps = await App.getInitialProps(appContext)
-  return { ...appProps }
-}
+// Only uncomment this method if you have blocking data requirements for
+// every single page in your application. This disables the ability to
+// perform automatic static optimization, causing every page in your app to
+// be server-side rendered.
+//
+// MyApp.getInitialProps = async (appContext: AppContext) => {
+//   const appProps = await App.getInitialProps(appContext)
+//   return { ...appProps }
+// }
 
 export default MyApp

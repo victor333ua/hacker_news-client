@@ -55,8 +55,8 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
             if (isLogged) {
                 refLogout.current = false;
                 await logout();
+                e.preventDefault();
             }
-            e.preventDefault();
         };
         return () => {
             window.onbeforeunload = null;
