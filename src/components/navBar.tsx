@@ -33,8 +33,10 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
             // }
         });
 
+    const logoutComplete = dataLogout?.logout;
+
     useEffect(() => {
-        if (!(dataLogout?.logout && refLogout.current)) return; 
+        if (!(logoutComplete && refLogout.current)) return; 
         localStorage.removeItem('token');
         document.cookie = "token=; expires = Thu, 01 Jan 1970 00:00:00 GMT; path=/;";                
         changeAuth(client);  // change auth in request headers
@@ -51,7 +53,7 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
 
     useEffect(() => {
         window.onbeforeunload = async (e: BeforeUnloadEvent) => {
-            if (isLogged) {
+            if (isLogged && !logoutComplete) {
                 refLogout.current = false;
                 await logout();
                 e.preventDefault();
@@ -60,7 +62,7 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
         return () => {
             window.onbeforeunload = null;
         }
-    },[isLogged, logout]);
+    },[isLogged, logout, logoutComplete]);
 
     const [logWithToken, { error: errorLogWithValidToken }] = 
         useLogWithValidTokenMutation({
