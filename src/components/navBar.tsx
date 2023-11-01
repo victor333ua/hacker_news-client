@@ -99,7 +99,7 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
                       icon={<MdHome />}
                       onClick={() => setItem(Menu.Posts)}
                     /> 
-                    { loading && 'Fetching...' }
+                    { loading &&  <Box textStyle='h3'>Fetching...</Box> }
                     { isLogged  
                     ? (<>                          
                         <MyIconButton
@@ -109,9 +109,13 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
                             mx='25px'
                             onClick={() => setItem(Menu.NewPost)}
                         />  
-                        { loadingLogout && 'Fetching...' }
-                        { errorLogout && 'error logout' } 
-                        { errorLogWithValidToken && `error log with old token: ${errorLogWithValidToken!.message}`}       
+                        { loadingLogout &&  <Box textStyle='h3'>Fetching...</Box> }
+                        { errorLogout &&  <Box textStyle='h3'>error logout</Box> } 
+                        { errorLogWithValidToken && 
+                            <Box textStyle='h3'>
+                                {`error log with old token: ${errorLogWithValidToken!.message}`}
+                            </Box> 
+                        }     
                         <Box  
                             ml="auto"
                             mr={6} 

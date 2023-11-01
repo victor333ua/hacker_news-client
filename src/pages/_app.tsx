@@ -8,6 +8,7 @@ import { NextPage } from 'next';
 import { createApolloClient } from '../apolloClient';
 import initializeApollo from '../utils/initApollo';
 import { isServer } from '../utils/isServer';
+import App, { AppContext } from 'next/app';
 
 export type ssrPageProps = {
     apolloState: NormalizedCacheObject | undefined,
@@ -52,12 +53,16 @@ function MyApp({ Component, pageProps }: appType) {
         }}
       > 
         <ApolloProvider client={client}> 
-        {/*  */}
           <Component key={isHomePage ? stateRef.current : 1} {...rest} /> 
         </ApolloProvider>    
       </ColorModeProvider>
     </ChakraProvider>
   )
+};
+
+MyApp.getInitialProps = async (appContext: AppContext) => {
+  const appProps = await App.getInitialProps(appContext)
+  return { ...appProps }
 }
 
 export default MyApp
