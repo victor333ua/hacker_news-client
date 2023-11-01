@@ -26,9 +26,10 @@ const Index: NextPage = () => {
     const bg = useColorModeValue('gray.100', 'gray.500')
 
     const [menuItem, setItem] = useState<Menu>(Menu.Posts);
+
     return (
         <Flex h='100vh' flexDirection='column'>
-            <NavBar setItem={ setItem }/>
+            <NavBar setItem={ setItem } />
             <Flex 
                 flexDirection='column'
                 justifyContent='center'

@@ -1,7 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS='--inspect' next dev -H upper.com",
+    "dev_debug": "cross-env NODE_OPTIONS='--inspect' next dev -H upper.com",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "gen": "graphql-codegen --config codegen.yml",

@@ -52,6 +52,7 @@ function MyApp({ Component, pageProps }: appType) {
         }}
       > 
         <ApolloProvider client={client}> 
+        {/*  */}
           <Component key={isHomePage ? stateRef.current : 1} {...rest} /> 
         </ApolloProvider>    
       </ColorModeProvider>

@@ -12,10 +12,10 @@ import { Profile } from "./profile";
 import { Menu } from "../pages";
 
 interface NavBarProps {
-    setItem:  React.Dispatch<React.SetStateAction<Menu>>
+    setItem:  React.Dispatch<React.SetStateAction<Menu>>,
 };
 
-export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
+export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
     const client = useApolloClient();
     const router = useRouter();
     const [isProfileVisible, setProfileVisible] = useState(false);
@@ -36,11 +36,11 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
 
     useEffect(() => {
         if (!(dataLogout?.logout && refLogout.current)) return; 
-        console.log('update after logout');
         localStorage.removeItem('token');
         document.cookie = "token=; expires = Thu, 01 Jan 1970 00:00:00 GMT; path=/;";                
         changeAuth(client);  // change auth in request headers
         client.cache.evict({ fieldName: 'me' });
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
         router.replace('/');
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataLogout])
@@ -52,9 +52,10 @@ export const NavBar: React.FC< NavBarProps> = ({setItem}) => {
 
     useEffect(() => {
         window.onbeforeunload = async (e: BeforeUnloadEvent) => {
-            console.log('beforeunload');
-            refLogout.current = false;
-            if (isLogged) await logout();
+            if (isLogged) {
+                refLogout.current = false;
+                await logout();
+            }
             e.preventDefault();
         };
         return () => {
