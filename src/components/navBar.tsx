@@ -30,7 +30,6 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
         useLogoutMutation({ 
             errorPolicy: 'all',
             // update: (cache, { data: dataLogout }) => {
-            //     cache.evict({ id: 'ROOT_QUERY', fieldName: 'feed' });
             // }
         });
 
@@ -135,9 +134,9 @@ export const NavBar: React.FC< NavBarProps> = ({ setItem }) => {
                             bg={iconsBg}
                             name='logout'
                             icon={<MdLogout />}                                                              
-                            onClick={() => { 
+                            onClick={async () => { 
                                 refLogout.current = true;
-                                logout();
+                                await logout();
                             }}
                         /> </>)      
                     :  

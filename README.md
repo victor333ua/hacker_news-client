@@ -7,10 +7,10 @@ oauth2 on 'express'
 #client
 next js ssr
 graphql cache from server
-renew index page in login/logout through new key=
+renew index page in login/logout router.reload()
 login & oauth2 pages only on client side
 chakra ui with black and white themes
 
 #deploy
-change client .env file
+client .env file in provider
 https://hacker-news-web.onrender.com/
