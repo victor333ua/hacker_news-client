@@ -10,6 +10,8 @@ graphql cache from server
 renew index page in login/logout router.reload()
 login & oauth2 pages only on client side
 chakra ui with black and white themes
+## set host in package.json run dev -H ..., 
+## according to cors_origin in .env on server
 
 #deploy
 client .env file in provider
